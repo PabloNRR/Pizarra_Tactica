@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MedioCampo">
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/verde"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/mediocampo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/medio_campo"
+        android:layout_marginBottom="150dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <ImageButton
+        android:id="@+id/Menu"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="60dp"
+        android:background="@drawable/menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo" />
+
+    <ImageButton
+        android:id="@+id/jugada"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/jugada"
+        app:layout_constraintStart_toEndOf="@+id/Menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo"
+        android:layout_marginLeft="50dp"/>
+
+    <ImageButton
+        android:id="@+id/jugador"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/baseline_circle_24"
+        app:layout_constraintStart_toEndOf="@+id/jugada"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo"
+        android:layout_marginLeft="50dp"/>
+
+    <ImageButton
+        android:id="@+id/lineas"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/baseline_call_made_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/jugador"
+        android:layout_marginLeft="20dp"
+        android:layout_marginVertical="0.9dp"
+        />
+
+    <ImageButton
+        android:id="@+id/goma"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/goma_de_borrar"
+        app:layout_constraintStart_toEndOf="@id/lineas"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/jugada"
+        android:layout_marginLeft="50dp"
+        android:layout_marginVertical="0.9dp"
+        />
+
+
+
+
+    <ImageButton
+        android:id="@+id/banquillo"
+        android:layout_width="750dp"
+        android:layout_height="150dp"
+        android:layout_marginVertical="0.9dp"
+        android:layout_marginLeft="150dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/ic_launcher_background"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/brush"
+
+        app:layout_constraintTop_toBottomOf="@id/mediocampo" />
+
+    <ImageButton
+        android:id="@+id/editar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/editar"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/jugador"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo" />
+
+    <ImageButton
+        android:id="@+id/play"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/play"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/editar"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo" />
+
+    <ImageButton
+        android:id="@+id/pausar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/pausar"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/play"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo" />
+
+    <ImageButton
+        android:id="@+id/palante"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/palante"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/pausar"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo" />
+
+    <ImageButton
+        android:id="@+id/patra"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/patra"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/palante"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo" />
+
+    <ImageButton
+        android:id="@+id/guardar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="200dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/save"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/patra"
+        app:layout_constraintTop_toBottomOf="@id/mediocampo" />
+
+    <com.example.pizarra_tactica.Dibujo
+        android:id="@+id/dibujoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/brush"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="60dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/brush"
+        app:layout_constraintStart_toEndOf="@id/goma"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/jugador"
+        android:layout_marginStart="50dp"
+        android:layout_marginVertical="0.9dp"
+        />
+
+    <HorizontalScrollView
+        android:layout_width="310dp"
+        android:layout_height="153dp"
+        android:layout_marginStart="420dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="50dp">
+
+            <!-- Lista de jugadores -->
+            <TextView
+                android:id="@+id/Jug1"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9   "
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug2"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="99  "
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug3"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="10  "
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug4"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="7  "
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug5"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="14  "
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug6"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug7"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug8"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug9"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug10"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug11"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug12"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug13"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp"/>
+
+            <TextView
+                android:id="@+id/Jug14"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug15"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug16"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug17"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug18"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug19"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug20"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug21"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug22"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug23"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/Jug24"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="50sp" />
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

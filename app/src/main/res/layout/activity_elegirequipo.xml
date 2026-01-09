@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondoelegirequipo">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ElegirEquipo">
+
+        <TextView
+            android:id="@+id/Text"
+            android:layout_width="500dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="45dp"
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="@color/cardview_shadow_start_color"
+            android:fontFamily="casual"
+            android:text="Elija su equipo"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/white"
+            android:textFontWeight="@integer/material_motion_duration_long_2"
+            android:textSize="60sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <HorizontalScrollView
+            android:layout_width="1200dp"
+            android:layout_height="630dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Text"
+            app:layout_constraintVertical_bias="0.84">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="50dp">
+
+                <!-- Lista de jugadores -->
+                <ImageButton
+                    android:id="@+id/Jug1"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug1" />
+
+                <ImageButton
+                    android:id="@+id/Jug2"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug2" />
+
+                <ImageButton
+                    android:id="@+id/Jug3"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug3" />
+
+                <ImageButton
+                    android:id="@+id/Jug4"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug4" />
+
+                <ImageButton
+                    android:id="@+id/Jug5"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug5" />
+
+                <ImageButton
+                    android:id="@+id/Jug6"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug6" />
+
+                <ImageButton
+                    android:id="@+id/Jug7"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug7" />
+
+                <ImageButton
+                    android:id="@+id/Jug8"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug8" />
+
+                <ImageButton
+                    android:id="@+id/Jug9"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug9" />
+
+                <ImageButton
+                    android:id="@+id/Jug10"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug10" />
+
+                <ImageButton
+                    android:id="@+id/Jug11"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug11" />
+
+                <ImageButton
+                    android:id="@+id/Jug12"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug12" />
+
+                <ImageButton
+                    android:id="@+id/Jug13"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug13" />
+
+                <ImageButton
+                    android:id="@+id/Jug14"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug14" />
+
+                <ImageButton
+                    android:id="@+id/Jug15"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug15" />
+
+                <ImageButton
+                    android:id="@+id/Jug16"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug16" />
+
+                <ImageButton
+                    android:id="@+id/Jug17"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug17" />
+
+                <ImageButton
+                    android:id="@+id/Jug18"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug18" />
+
+                <ImageButton
+                    android:id="@+id/Jug19"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug19" />
+
+                <ImageButton
+                    android:id="@+id/Jug20"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/addescudo"
+                    android:contentDescription="jug20" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

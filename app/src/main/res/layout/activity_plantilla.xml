@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondoplantilla">
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".Plantilla">
+
+
+        <ImageButton
+            android:id="@+id/btncampo"
+            android:layout_width="150dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="75dp"
+            android:layout_marginEnd="60dp"
+            android:adjustViewBounds="false"
+            android:background="@drawable/campoboton"
+            android:contentDescription="campo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.693"
+            app:layout_constraintStart_toEndOf="@+id/skrillex"
+            app:layout_constraintTop_toBottomOf="@id/Text"
+            app:layout_constraintVertical_bias="0.121" />
+
+        <ImageButton
+            android:id="@+id/btnhome"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            android:adjustViewBounds="false"
+            android:background="@drawable/home"
+            android:contentDescription="casa"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.715"
+            app:layout_constraintStart_toEndOf="@+id/skrillex"
+            app:layout_constraintTop_toBottomOf="@id/btncampo"
+            app:layout_constraintVertical_bias="0.163" />
+
+        <ImageButton
+            android:id="@+id/btntrash"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            android:adjustViewBounds="false"
+            android:background="@drawable/trash"
+            android:contentDescription="eliminar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.715"
+            app:layout_constraintStart_toEndOf="@+id/skrillex"
+            app:layout_constraintTop_toBottomOf="@id/btncampo"
+            app:layout_constraintVertical_bias="0.816" />
+
+        <ImageButton
+            android:id="@+id/btnescudo"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="30dp"
+            android:adjustViewBounds="false"
+            android:background="@drawable/addescudo"
+            android:contentDescription="escudo"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.037" />
+
+        <EditText
+            android:id="@+id/Text"
+            android:layout_width="1050dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="0dp"
+            android:backgroundTint="@color/cardview_shadow_start_color"
+            android:fontFamily="casual"
+            android:text="Liverpool FC"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/white"
+            android:textFontWeight="@integer/material_motion_duration_long_2"
+            android:textSize="60sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnescudo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <ScrollView
+            android:id="@+id/skrillex"
+            android:layout_width="1000dp"
+            android:layout_height="630dp"
+            app:layout_constraintTop_toBottomOf="@+id/Text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <!-- Lista de jugadores -->
+                <TextView
+                    android:id="@+id/Jug1"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp" />
+
+                <TextView
+                    android:id="@+id/Jug2"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug3"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug4"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug5"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug6"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug7"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug8"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug9"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug10"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug11"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug12"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug13"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug14"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug15"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug16"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug17"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug18"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug19"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug20"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug21"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug22"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug23"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+                <TextView
+                    android:id="@+id/Jug24"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="       0      |  Nombre del jugador                    DC"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"  />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
