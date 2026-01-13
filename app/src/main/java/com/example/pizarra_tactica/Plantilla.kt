@@ -10,8 +10,58 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
 import java.io.File
+import android.provider.MediaStore
 
 class Plantilla : AppCompatActivity() {
+
+    private var fotoUri: Uri? = null
+
+    private val launcherSelector = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // 1. Intentamos obtener la URI de la galería (está en result.data)
+            // 2. Si no hay nada ahí, significa que se usó la cámara (está en fotoUri)
+            val selectedUri = result.data?.data ?: fotoUri
+
+            selectedUri?.let { uri ->
+                val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
+                Glide.with(this).load(uri).into(btnEscudo)
+                btnEscudo.tag = uri.toString()
+            }
+        }
+    }
+
+    // Este lanzador recibirá la imagen venga de donde venga
+    private fun abrirOpcionesImagen() {
+        // 1. Preparar Galería
+        val intentGaleria = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+        }
+
+        // 2. Preparar Cámara
+        fotoUri = crearUriTemporal()
+        val intentCamara = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+        fotoUri?.let { uri ->
+            intentCamara.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+
+            // 3. Crear el Selector (Chooser)
+            val chooser = Intent.createChooser(intentGaleria, "Selecciona el escudo del equipo")
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(intentCamara))
+
+            // LANZAR EL SELECTOR
+            launcherSelector.launch(chooser)
+        }
+    }
+
+    // 2. Función para crear el archivo vacío donde la cámara escribirá la foto
+    private fun crearUriTemporal(): Uri {
+        val archivo = File(filesDir, "escudo_temp.jpg")
+        return androidx.core.content.FileProvider.getUriForFile(
+            this,
+            "${packageName}.fileprovider", // Debe coincidir con el Manifest
+            archivo
+        )
+    }
 
     private val getImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -75,7 +125,7 @@ class Plantilla : AppCompatActivity() {
         }
 
         btnEscudo.setOnClickListener {
-            getImage.launch("image/*")
+            abrirOpcionesImagen()
         }
 
         btnEliminar.setOnClickListener {
