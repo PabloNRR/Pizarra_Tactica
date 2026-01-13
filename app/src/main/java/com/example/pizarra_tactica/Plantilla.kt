@@ -41,6 +41,7 @@ class Plantilla : AppCompatActivity() {
         fotoUri = crearUriTemporal()
         val intentCamara = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
+        // Solo si podemos crear el hueco para la fot con éxito seguimos
         fotoUri?.let { uri ->
             intentCamara.putExtra(MediaStore.EXTRA_OUTPUT, uri)
 
@@ -161,9 +162,9 @@ class Plantilla : AppCompatActivity() {
             if (idequipo != id) return@forEachIndexed
 
             val textoFormateado = String.format(
-                "       %2s      |  %-51s%-3s",
+                " %2s | %-20s  %3s",
                 dorsal,
-                nombre.take(51),
+                nombre.take(20),
                 posicion.take(3)
             )
 
@@ -195,6 +196,7 @@ class Plantilla : AppCompatActivity() {
                 else -> null
             }
 
+            textView?.typeface = android.graphics.Typeface.MONOSPACE
             textView?.text = textoFormateado
 
             textView?.setOnClickListener {
