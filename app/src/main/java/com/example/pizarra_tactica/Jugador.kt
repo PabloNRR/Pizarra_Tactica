@@ -62,7 +62,18 @@ class Jugador : AppCompatActivity() {
         }
     }
 
+    // Original
     data class JugadorData(val nombre: String, val posicion: String, val nota: String)
+
+    // Nuevo
+    /*
+    data class Jugador(
+        val equipo_id: String,
+        val dorsal: Int,
+        val nombre: String,
+        val posicion: String,
+        val nota: String? = ""
+    ) */
 
     private fun obtenerDatosJugador(context: Context, id: String, dorsal: String): JugadorData? {
         val archivo = File(context.filesDir, "BDPLANTILLAS.txt")
