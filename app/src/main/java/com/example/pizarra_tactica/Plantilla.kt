@@ -209,7 +209,7 @@ class Plantilla : AppCompatActivity() {
             }
 
             // Depuración
-            println("Index: $index, ID Equipo: $idequipo, Dorsal: $dorsal, Nombre: $nombre, Posición: $posicion")
+            // println("Index: $index, ID Equipo: $idequipo, Dorsal: $dorsal, Nombre: $nombre, Posición: $posicion")
         }
     }
 

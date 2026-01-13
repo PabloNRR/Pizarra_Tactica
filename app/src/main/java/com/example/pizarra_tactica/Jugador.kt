@@ -71,6 +71,7 @@ class Jugador : AppCompatActivity() {
         val lineas = archivo.readLines()
         for (linea in lineas) {
             val partes = linea.split("-")
+            // Comprobamos que el id de equipo y dorsal coinciden
             if (partes.size >= 5 && partes[0] == id && partes[1] == dorsal) {
                 val nombre = partes[2]
                 val posicion = partes[3]
