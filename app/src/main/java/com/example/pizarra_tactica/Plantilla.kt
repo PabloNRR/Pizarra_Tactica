@@ -16,63 +16,6 @@ class Plantilla : AppCompatActivity() {
 
     private var fotoUri: Uri? = null
 
-    private val launcherSelector = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            // 1. Intentamos obtener la URI de la galería (está en result.data)
-            // 2. Si no hay nada ahí, significa que se usó la cámara (está en fotoUri)
-            val selectedUri = result.data?.data ?: fotoUri
-
-            selectedUri?.let { uri ->
-                val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
-                Glide.with(this).load(uri).into(btnEscudo)
-                btnEscudo.tag = uri.toString()
-            }
-        }
-    }
-
-    // Este lanzador recibirá la imagen venga de donde venga
-    private fun abrirOpcionesImagen() {
-        // 1. Preparar Galería
-        val intentGaleria = Intent(Intent.ACTION_GET_CONTENT).apply {
-            type = "image/*"
-        }
-
-        // 2. Preparar Cámara
-        fotoUri = crearUriTemporal()
-        val intentCamara = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-
-        // Solo si podemos crear el hueco para la fot con éxito seguimos
-        fotoUri?.let { uri ->
-            intentCamara.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-
-            // 3. Crear el Selector (Chooser)
-            val chooser = Intent.createChooser(intentGaleria, "Selecciona el escudo del equipo")
-            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(intentCamara))
-
-            // LANZAR EL SELECTOR
-            launcherSelector.launch(chooser)
-        }
-    }
-
-    // 2. Función para crear el archivo vacío donde la cámara escribirá la foto
-    private fun crearUriTemporal(): Uri {
-        val archivo = File(filesDir, "escudo_temp.jpg")
-        return androidx.core.content.FileProvider.getUriForFile(
-            this,
-            "${packageName}.fileprovider", // Debe coincidir con el Manifest
-            archivo
-        )
-    }
-
-    private val getImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
-            Glide.with(this).load(it).into(btnEscudo)
-            // Guardar la URI seleccionada en el tag del botón para usarla más tarde
-            btnEscudo.tag = it.toString()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_plantilla)
@@ -101,9 +44,14 @@ class Plantilla : AppCompatActivity() {
         val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
 
         nombreEditText.setText(nombre)
+        // Dentro del onCreate de Plantilla.kt, cuando cargas la imagen inicial:
         imageUri?.let {
-            Glide.with(this).load(it).into(btnEscudo)
-            btnEscudo.tag = it // Guardar el URI en el tag del botón
+            Glide.with(this)
+                .load(it)
+                .skipMemoryCache(true) // Añade esto
+                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE) // Añade esto
+                .into(btnEscudo)
+            btnEscudo.tag = it
         }
 
         val btnCampo: ImageButton = findViewById(R.id.btncampo)
@@ -143,6 +91,118 @@ class Plantilla : AppCompatActivity() {
             builder.create().show()
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Guardamos la URI en el "paquete de supervivencia" de Android
+        outState.putParcelable("foto_uri", fotoUri)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        // Recuperamos la URI cuando la App vuelve a la vida
+        fotoUri = savedInstanceState.getParcelable("foto_uri")
+    }
+
+    private val launcherSelector = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val idEquipo = intent.getStringExtra("id") ?: "temp"
+
+            // 1. Identificamos si viene de la Galería (data no es nulo)
+            // o de la Cámara (data es nulo, usamos fotoUri)
+            val dataGaleria = result.data?.data
+
+            val uriFinal: Uri? = if (dataGaleria != null) {
+                // VIENE DE GALERÍA: Hay que copiarla a nuestra carpeta
+                copiarImagenAGuardar(dataGaleria, idEquipo)
+            } else {
+                // VIENE DE CÁMARA: Ya está guardada en nuestra carpeta gracias a crearUriTemporal()
+                fotoUri
+            }
+
+            uriFinal?.let { uri ->
+                val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
+
+                // Usamos la firma (signature) basada en el tiempo para que Glide refresque
+                val archivoFoto = File(filesDir, "escudo_$idEquipo.jpg")
+
+                Glide.with(this)
+                    .load(uri)
+                    .signature(com.bumptech.glide.signature.ObjectKey(archivoFoto.lastModified()))
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
+                    .into(btnEscudo)
+
+                btnEscudo.tag = uri.toString()
+                modificarEquipo()
+            }
+        }
+        else {
+            android.widget.Toast.makeText(this, "Acción cancelada: No se han realizado cambios", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    // Este lanzador recibirá la imagen venga de donde venga
+    private fun abrirOpcionesImagen() {
+        // 1. Preparar Galería
+        val intentGaleria = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+        }
+
+        // 2. Preparar Cámara
+        fotoUri = crearUriTemporal()
+        val intentCamara = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+        // Solo si podemos crear el hueco para la fot con éxito seguimos
+        fotoUri?.let { uri ->
+            intentCamara.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+
+            // 3. Crear el Selector (Chooser)
+            val chooser = Intent.createChooser(intentGaleria, "Selecciona el escudo del equipo")
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(intentCamara))
+
+            // LANZAR EL SELECTOR
+            launcherSelector.launch(chooser)
+        }
+    }
+
+    // 2. Función para crear el archivo vacío donde la cámara escribirá la foto
+    private fun crearUriTemporal(): Uri {
+        val id = intent.getStringExtra("id") ?: "temp"
+        // Usamos el ID en el nombre del archivo: escudo_C1.jpg
+        val archivo = File(filesDir, "escudo_$id.jpg")
+        return androidx.core.content.FileProvider.getUriForFile(
+            this,
+            "${packageName}.fileprovider",
+            archivo
+        )
+    }
+
+    private fun copiarImagenAGuardar(uriOrigen: Uri, equipoId: String): Uri? {
+        return try {
+            // 1. Abrimos el flujo de la foto de la galería
+            val inputStream = contentResolver.openInputStream(uriOrigen)
+            // 2. Creamos nuestro propio archivo permanente (ej: escudo_C1.jpg)
+            val archivoDestino = File(filesDir, "escudo_$equipoId.jpg")
+            val outputStream = archivoDestino.outputStream()
+
+            // 3. Copiamos los datos
+            inputStream?.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            // 4. Devolvemos la URI de NUESTRO archivo interno (esta no caduca nunca)
+            androidx.core.content.FileProvider.getUriForFile(
+                this, "${packageName}.fileprovider", archivoDestino
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 
     private fun actualizarListaJugadores(id: String) {
         val archivo = File(filesDir, "BDPLANTILLAS.txt")

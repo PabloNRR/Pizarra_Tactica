@@ -15,7 +15,17 @@ class ElegirEquipo : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_elegirequipo)
+        cargarEquiposDesdeArchivo()
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Sacamos la lógica de carga aquí para que se refresque al volver
+        cargarEquiposDesdeArchivo()
+    }
+
+    private fun cargarEquiposDesdeArchivo() {
         val file = File(filesDir, "BDEQUIPOS.txt")
         // Define un array con los identificadores de los botones de imagen
         val imageButtonIds = arrayOf(
@@ -50,8 +60,15 @@ class ElegirEquipo : AppCompatActivity() {
                 val imageButtonId = imageButtonIds[index]
                 val imageButton = findViewById<ImageButton>(imageButtonId)
 
+                // Obtenemos el archivo real para ver cuándo se modificó por última vez
+                val archivoFoto = File(filesDir, "escudo_${equipo.id}.jpg")
+
                 // Carga la imagen en el ImageButton usando Glide
-                Glide.with(this).load(Uri.parse(equipo.imageUri)).into(imageButton)
+                Glide.with(this).load(Uri.parse(equipo.imageUri))
+                    .signature(com.bumptech.glide.signature.ObjectKey(archivoFoto.lastModified()))
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
+                    .into(imageButton)
 
                 // Configura el click listener para cada botón
                 imageButton.setOnClickListener {
