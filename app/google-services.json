@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1092614622415",
-    "project_id": "pizarratactica-83c78",
-    "storage_bucket": "pizarratactica-83c78.firebasestorage.app"
+    "project_number": "138501572210",
+    "project_id": "pizarratactica-fc657",
+    "storage_bucket": "pizarratactica-fc657.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1092614622415:android:204f0705fbff766b5bbbba",
+        "mobilesdk_app_id": "1:138501572210:android:b019a0fe11af7492a924eb",
         "android_client_info": {
           "package_name": "com.example.pizarra_tactica"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDSHrxz_DF0gBjmyGcI17m_AK3O_3KxUI4"
+          "current_key": "AIzaSyCQIKVKy7oztPHOkGMwYuJZcLPPH-vF7i0"
         }
       ],
       "services": {

@@ -9,35 +9,55 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 
 class MenuActivity : AppCompatActivity() {
+
+    companion object {
+        const val EXTRA_FROM_LOGIN = "EXTRA_FROM_LOGIN"
+    }
+
+    private val auth by lazy { FirebaseAuth.getInstance() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_menu)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Crear el fichero BDEQUIPOS si no existe
+        // ✅ Solo forzamos logout si la app se ha abierto "en frío"
+        // (NO si venimos del login/register)
+        val fromLogin = intent.getBooleanExtra(EXTRA_FROM_LOGIN, false)
+        if (!fromLogin) {
+            auth.signOut()
+            getSharedPreferences("auth", MODE_PRIVATE).edit().clear().apply()
+        }
+
+        // crear ficheros si no existen
         crearFicheroBDEquipos(this)
         crearFicheroBDTacticas(this)
         crearFicheroBDPlantillas(this)
 
-        // Agregar OnClickListener al ConstraintLayout principal
         val mainLayout: ConstraintLayout = findViewById(R.id.main)
         mainLayout.setOnClickListener {
-            val intent = Intent(this, ElegirEquipo::class.java)
-            startActivity(intent)
+            if (auth.currentUser == null) {
+                startActivity(Intent(this, Login::class.java))
+            } else {
+                startActivity(Intent(this, ElegirEquipo::class.java))
+            }
         }
 
+        // prueba Retrofit (si lo quieres mantener)
         lifecycleScope.launch {
             try {
                 val respuesta = RetrofitClient.instance.obtenerEquipos()
@@ -60,7 +80,6 @@ class MenuActivity : AppCompatActivity() {
                 val textoIngresado = "Añadir Equipo"
                 val imageUri = Uri.parse("android.resource://${context.packageName}/drawable/addescudo")
 
-                // Generar 20 líneas con IDs incrementales
                 for (i in 0..19) {
                     val id = "C$i"
                     val linea = "$id-$textoIngresado-${imageUri}\n"

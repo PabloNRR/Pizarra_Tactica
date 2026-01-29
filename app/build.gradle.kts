@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.pizarra_tactica"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -55,6 +55,7 @@ dependencies {
     implementation("com.larswerkman:HoloColorPicker:1.5")
     implementation("com.squareup.picasso:picasso:2.71828")
     implementation("com.github.bumptech.glide:glide:4.12.0")
+    implementation("com.google.firebase:firebase-auth-ktx")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 
     // Librerías para conectar con tu API REST en Google Cloud
