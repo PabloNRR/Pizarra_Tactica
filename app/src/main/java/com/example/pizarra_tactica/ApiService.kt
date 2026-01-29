@@ -7,16 +7,16 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ApiService {
-
-    // Obtener todos los equipos para la pantalla inicial
     @GET("equipos")
     suspend fun obtenerEquipos(): List<EquipoRemote>
 
-    // Obtener los jugadores de un equipo específico (ej: C1)
     @GET("jugadores/{eq_id}")
     suspend fun obtenerJugadores(@Path("eq_id") equipoId: String): List<JugadorRemote>
 
-    // Guardar o actualizar un jugador en la nube
     @POST("jugador")
     suspend fun guardarJugador(@Body jugador: JugadorRemote): Response<Unit>
+
+    // NUEVO: Para actualizar el nombre y escudo del equipo en la nube
+    @POST("equipo")
+    suspend fun guardarEquipo(@Body equipo: EquipoRemote): Response<Unit>
 }
