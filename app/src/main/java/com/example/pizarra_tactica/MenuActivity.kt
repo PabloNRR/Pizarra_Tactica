@@ -12,6 +12,8 @@ import androidx.core.view.WindowInsetsCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MenuActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +36,15 @@ class MenuActivity : AppCompatActivity() {
         mainLayout.setOnClickListener {
             val intent = Intent(this, ElegirEquipo::class.java)
             startActivity(intent)
+        }
+
+        lifecycleScope.launch {
+            try {
+                val respuesta = RetrofitClient.instance.obtenerEquipos()
+                println("CONEXIÓN EXITOSA: Se han traído ${respuesta.size} equipos")
+            } catch (e: Exception) {
+                println("ERROR DE CONEXIÓN: ${e.message}")
+            }
         }
     }
 
