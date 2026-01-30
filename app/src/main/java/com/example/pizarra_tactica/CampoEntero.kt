@@ -20,6 +20,7 @@ import android.view.View.VISIBLE
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import java.io.File
+import android.widget.Toast
 
 class CampoEntero : AppCompatActivity() {
 
@@ -43,6 +44,8 @@ class CampoEntero : AppCompatActivity() {
     private var dY = 0f
     private val opciones = arrayOf("Elegir equipo", "Elegir campo", "Guardar pizarra", "Salir sin guardar")
     private lateinit var binding: ActivityEnteroBinding
+    private lateinit var shakeToUndo: ShakeToUndoManager
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +79,12 @@ class CampoEntero : AppCompatActivity() {
         Menu = findViewById(R.id.Menu)
         lineas = findViewById(R.id.lineas)
         goma = findViewById(R.id.goma)
+        shakeToUndo = ShakeToUndoManager(this) {
+            dibujoView.undoLast()
+            Toast.makeText(this, "Undo", Toast.LENGTH_SHORT).show()
+        }
+
+
 
         // Get the bounds of the football field image
         campoView.post {
@@ -388,6 +397,17 @@ class CampoEntero : AppCompatActivity() {
         }
     }
 
-    
+    override fun onResume() {
+        super.onResume()
+        shakeToUndo.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        shakeToUndo.stop()
+    }
+
+
+
 
 }

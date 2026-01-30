@@ -20,6 +20,8 @@ import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.widget.TextView
 import java.io.File
+import android.widget.Toast
+
 
 
 class MedioCampo : AppCompatActivity() {
@@ -44,6 +46,7 @@ class MedioCampo : AppCompatActivity() {
     private var dX = 0f
     private var dY = 0f
     private lateinit var binding: ActivityMedioCampoBinding
+    private lateinit var shakeToUndo: ShakeToUndoManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +65,10 @@ class MedioCampo : AppCompatActivity() {
 
         val mainLayout = findViewById<ConstraintLayout>(R.id.main)
         dibujoView = findViewById(R.id.dibujoView)
+        shakeToUndo = ShakeToUndoManager(this) {
+            dibujoView.undoLast()
+            Toast.makeText(this, "Undo", Toast.LENGTH_SHORT).show()
+        }
         campoView = findViewById(R.id.mediocampo)
         jugada = findViewById(R.id.jugada)
         jugador = findViewById(R.id.jugador)
@@ -331,4 +338,15 @@ class MedioCampo : AppCompatActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        shakeToUndo.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        shakeToUndo.stop()
+    }
+
 }

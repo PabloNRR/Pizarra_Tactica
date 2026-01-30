@@ -239,4 +239,22 @@ class Dibujo(context: Context, attrs: AttributeSet) : View(context, attrs) {
     fun setDrawingBounds(bounds: RectF) {
         drawingBounds = bounds
     }
+
+    fun undoLast() {
+        // Si el usuario está en medio de un trazo, cancelamos el trazo actual
+        if (currentPath != null || startPoint != null || endPoint != null) {
+            currentPath = null
+            startPoint = null
+            endPoint = null
+            invalidate()
+            return
+        }
+
+        // Si no, borramos el último Path guardado
+        if (paths.isNotEmpty()) {
+            paths.removeAt(paths.size - 1)
+            invalidate()
+        }
+    }
+
 }
