@@ -1,6 +1,5 @@
 package com.example.pizarra_tactica
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -8,148 +7,139 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class Jugador : AppCompatActivity() {
 
     private val posiciones = arrayOf("EI", "DC", "ED", "MCO", "MI", "MC", "MD", "LI", "DFC", "LD", "POR")
+    private lateinit var idEquipo: String
+    private var dorsalOriginal: Int = 0
+
+    // Declaramos las vistas como variables de clase para acceder a ellas fácilmente
+    private lateinit var nombreText: EditText
+    private lateinit var dorsalText: EditText
+    private lateinit var notaText: EditText
+    private lateinit var btnSeleccionarPosicion: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_jugador)
 
-        val id = intent.getStringExtra("id")
-        val dorsal = intent.getStringExtra("dorsal")
+        idEquipo = intent.getStringExtra("id") ?: return
+        dorsalOriginal = intent.getStringExtra("dorsal")?.toIntOrNull() ?: 0
 
-        val nombreText = findViewById<EditText>(R.id.nombretext)
-        val dorsalText = findViewById<EditText>(R.id.dorsaltext)
-        val notaText = findViewById<EditText>(R.id.notatext)
-        val btnSeleccionarPosicion = findViewById<Button>(R.id.btnSeleccionar)
+        nombreText = findViewById(R.id.nombretext)
+        dorsalText = findViewById(R.id.dorsaltext)
+        notaText = findViewById(R.id.notatext)
+        btnSeleccionarPosicion = findViewById(R.id.btnSeleccionar)
+
         val btnGuardarJugador = findViewById<Button>(R.id.btnguardarjugador)
         val btnCancelar = findViewById<Button>(R.id.btncancelar)
         val btnEliminarJugador = findViewById<Button>(R.id.btneliminarjugador)
 
-        // Obtener datos del jugador y establecerlos en la interfaz
-        val jugador = obtenerDatosJugador(this, id!!, dorsal!!)
-        jugador?.let {
-            nombreText.setText(it.nombre)
-            dorsalText.setText(dorsal)
-            notaText.setText(it.nota)
-            btnSeleccionarPosicion.text = it.posicion
-        }
+        // Cargar datos
+        cargarDatosJugador()
 
+        // Botón Guardar manual
         btnGuardarJugador.setOnClickListener {
-            modificarJugador(this, id, dorsal, nombreText.text.toString(), dorsalText.text.toString(), btnSeleccionarPosicion.text.toString(), notaText.text.toString())
+            ejecutarGuardadoYSalir()
         }
 
+        // Botón Cancelar (Aquí NO guardamos, volvemos sin más)
         btnCancelar.setOnClickListener {
-            val intent = Intent(this, Plantilla::class.java).apply {
-                putExtra("id", id)         // Pasar el ID del equipo
-            }
-            startActivity(intent)
+            volverAPlantilla()
         }
 
         btnEliminarJugador.setOnClickListener {
-            eliminarJugador(this, id, dorsal)
-            val intent = Intent(this, Plantilla::class.java).apply {
-                putExtra("id", id)         // Pasar el ID del equipo
-            }
-            startActivity(intent)
+            val jugadorReset = JugadorRemote(idEquipo, 0, "Nombre del jugador", "DC", "Nota")
+            guardarEnNube(jugadorReset)
         }
 
-        btnSeleccionarPosicion.setOnClickListener {
-            mostrarDialogoPosiciones()
+        btnSeleccionarPosicion.setOnClickListener { mostrarDialogoPosiciones() }
+    }
+
+    // --- NUEVO: Controlar el botón atrás físico o gesto del sistema ---
+    override fun onBackPressed() {
+        // Al darle atrás, guardamos automáticamente antes de cerrar
+        ejecutarGuardadoYSalir()
+    }
+
+    private fun ejecutarGuardadoYSalir() {
+        val nuevoDorsal = dorsalText.text.toString().toIntOrNull() ?: 0
+
+        if (nuevoDorsal !in 0..99) { // Permitimos 0 por si es reset
+            mostrarErrorDorsal()
+        } else {
+            val jugadorEditado = JugadorRemote(
+                equipoId = idEquipo,
+                dorsal = nuevoDorsal,
+                nombre = nombreText.text.toString(),
+                posicion = btnSeleccionarPosicion.text.toString(),
+                nota = notaText.text.toString()
+            )
+            guardarEnNube(jugadorEditado)
         }
     }
 
-    // Original
-    data class JugadorData(val nombre: String, val posicion: String, val nota: String)
+    private fun cargarDatosJugador() {
+        lifecycleScope.launch {
+            try {
+                val jugadores = RetrofitClient.instance.obtenerJugadores(idEquipo)
+                val j = jugadores.find { it.dorsal == dorsalOriginal }
 
-    // Nuevo
-    /*
-    data class Jugador(
-        val equipo_id: String,
-        val dorsal: Int,
-        val nombre: String,
-        val posicion: String,
-        val nota: String? = ""
-    ) */
-
-    private fun obtenerDatosJugador(context: Context, id: String, dorsal: String): JugadorData? {
-        val archivo = File(context.filesDir, "BDPLANTILLAS.txt")
-        if (!archivo.exists()) return null
-
-        val lineas = archivo.readLines()
-        for (linea in lineas) {
-            val partes = linea.split("-")
-            // Comprobamos que el id de equipo y dorsal coinciden
-            if (partes.size >= 5 && partes[0] == id && partes[1] == dorsal) {
-                val nombre = partes[2]
-                val posicion = partes[3]
-                val nota = partes[4]
-                return JugadorData(nombre, posicion, nota)
+                j?.let {
+                    nombreText.setText(it.nombre)
+                    dorsalText.setText(it.dorsal.toString())
+                    notaText.setText(it.nota)
+                    btnSeleccionarPosicion.text = it.posicion
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@Jugador, "Error de conexión", Toast.LENGTH_SHORT).show()
             }
         }
-        return null
     }
 
+    private fun guardarEnNube(jugador: JugadorRemote) {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.instance.guardarJugador(jugador)
+                if (response.isSuccessful) {
+                    // Solo salimos si el servidor confirma el guardado
+                    volverAPlantilla()
+                } else {
+                    Toast.makeText(this@Jugador, "Error en el servidor", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@Jugador, "Fallo al guardar: revisa internet", Toast.LENGTH_SHORT).show()
+                // Si falla el internet, salimos de todos modos para no bloquear al usuario
+                volverAPlantilla()
+            }
+        }
+    }
+
+    private fun volverAPlantilla() {
+        val intent = Intent(this, Plantilla::class.java).apply {
+            putExtra("id", idEquipo)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) // Limpia el historial para no acumular pantallas
+        }
+        startActivity(intent)
+        finish()
+    }
 
     private fun mostrarDialogoPosiciones() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Selecciona una posición")
-        builder.setItems(posiciones) { _, which ->
-            val seleccion = posiciones[which]
-            val btnSeleccionarPosicion: Button = findViewById(R.id.btnSeleccionar)
-            btnSeleccionarPosicion.text = seleccion
-        }
-        builder.show()
+        AlertDialog.Builder(this)
+            .setTitle("Selecciona una posición")
+            .setItems(posiciones) { _, which ->
+                btnSeleccionarPosicion.text = posiciones[which]
+            }
+            .show()
     }
 
-    private fun modificarJugador(context: Context, id: String, dorsal: String, nuevoNombre: String, nuevoDorsal: String, nuevaPosicion: String, nuevaNota: String) {
-        if (nuevoDorsal.toIntOrNull() !in 1..99) {
-            AlertDialog.Builder(this)
-                .setMessage("El dorsal debe ser un número del 1 al 99, cámbielo para poder guardar")
-                .setPositiveButton("Aceptar") { dialog, _ -> dialog.dismiss() }
-                .show()
-            return
-        }
-
-        val archivo = File(context.filesDir, "BDPLANTILLAS.txt")
-        if (archivo.exists()) {
-            val lineas = archivo.readLines().toMutableList()
-            val indice = lineas.indexOfFirst { it.startsWith("$id-$dorsal-") }
-
-            if (indice != -1) {
-                lineas[indice] = "$id-$nuevoDorsal-$nuevoNombre-$nuevaPosicion-$nuevaNota"
-                archivo.writeText(lineas.joinToString("\n"))
-                Toast.makeText(context, "Jugador modificado correctamente", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, Plantilla::class.java).apply {
-                    putExtra("id", id)         // Pasar el ID del equipo
-                }
-                startActivity(intent)
-            } else {
-                Toast.makeText(context, "No se encontró el jugador", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            Toast.makeText(context, "Archivo no encontrado", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun eliminarJugador(context: Context, id: String, dorsal: String) {
-        val archivo = File(context.filesDir, "BDPLANTILLAS.txt")
-        if (archivo.exists()) {
-            val lineas = archivo.readLines().toMutableList()
-            val indice = lineas.indexOfFirst { it.startsWith("$id-$dorsal-") }
-
-            if (indice != -1) {
-                lineas[indice] = "$id-0-Nombre del jugador-DC-Nota"
-                archivo.writeText(lineas.joinToString("\n"))
-                Toast.makeText(context, "Jugador eliminado correctamente", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "No se encontró el jugador", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            Toast.makeText(context, "Archivo no encontrado", Toast.LENGTH_SHORT).show()
-        }
+    private fun mostrarErrorDorsal() {
+        AlertDialog.Builder(this)
+            .setMessage("El dorsal debe ser un número del 1 al 99")
+            .setPositiveButton("Aceptar", null)
+            .show()
     }
 }
