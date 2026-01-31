@@ -6,6 +6,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.DELETE
+
 
 interface ApiService {
     @GET("equipos")
@@ -21,4 +23,10 @@ interface ApiService {
     // NUEVO: Para actualizar el nombre y escudo del equipo en la nube
     @POST("equipo")
     suspend fun guardarEquipo(@Body equipo: EquipoRemote): Response<Unit>
+
+    @DELETE("jugador/{eq_id}/{dorsal}")
+    suspend fun eliminarJugador(
+        @Path("eq_id") eqId: String,
+        @Path("dorsal") dorsal: Int
+    ): Response<Unit>
 }

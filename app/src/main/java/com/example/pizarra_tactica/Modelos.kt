@@ -3,16 +3,17 @@ package com.example.pizarra_tactica
 import com.google.gson.annotations.SerializedName
 
 data class JugadorRemote(
-    val equipo_id: String,
-    val dorsal: Int,
-    val nombre: String,
-    val posicion: String,
-    val nota: String,
-    val old_dorsal: Int? = null // <-- AÑADIR ESTO
+    @SerializedName("equipo_id") val equipo_id: String,
+    @SerializedName("dorsal") val dorsal: Int,
+    @SerializedName("nombre") val nombre: String,
+    @SerializedName("posicion") val posicion: String,
+    @SerializedName("nota") val nota: String,
+    @SerializedName("old_dorsal") val old_dorsal: Int? = null // Aseguramos el nombre exacto
 )
+
 data class EquipoRemote(
-    val id: String,
-    val nombre: String,
-    val imageUri: String, // Coincide con datos.get('imageUri') en tu Python
-    val user_id: String   // El UID de Firebase
+    @SerializedName("id") val id: String,
+    @SerializedName("nombre") val nombre: String,
+    @SerializedName("imageUri") val imageUri: String,
+    @SerializedName("user_id") val user_id: String
 )

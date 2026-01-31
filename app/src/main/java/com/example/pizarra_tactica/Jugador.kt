@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback // Necesario para el nuevo botón atrás
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -16,7 +16,6 @@ class Jugador : AppCompatActivity() {
 
     private val posiciones = arrayOf("EI", "DC", "ED", "MCO", "MI", "MC", "MD", "LI", "DFC", "LD", "POR")
 
-    // 1. DECLARACIÓN DE VARIABLES DE CLAVE (Nivel Clase)
     private lateinit var idEquipo: String
     private var dorsalOriginal: Int = -1
     private var esNuevo: Boolean = false
@@ -30,7 +29,7 @@ class Jugador : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_jugador)
 
-        // 2. RECOGIDA DE DATOS (Asegúrate de no poner "val" delante de idEquipo aquí)
+        // 1. Recogida de datos
         idEquipo = intent.getStringExtra("id") ?: ""
         esNuevo = intent.getBooleanExtra("ES_NUEVO", false)
 
@@ -43,20 +42,20 @@ class Jugador : AppCompatActivity() {
         val btnCancelar = findViewById<Button>(R.id.btncancelar)
         val btnEliminarJugador = findViewById<Button>(R.id.btneliminarjugador)
 
-        // 3. LÓGICA DE INICIO
-        if (!esNuevo) {
-            // Si venimos de la lista, el dorsal llega como String del Intent
-            dorsalOriginal = intent.getStringExtra("dorsal")?.toIntOrNull() ?: -1
-            cargarDatosJugador()
-        } else {
-            // Si es un jugador totalmente nuevo
+        // 2. Configuración inicial según si es nuevo o edición
+        if (esNuevo) {
+            dorsalOriginal = -1
             btnEliminarJugador.visibility = View.GONE
             nombreText.setText("")
             nombreText.hint = "Introduce nombre"
             btnSeleccionarPosicion.text = "Seleccionar"
+        } else {
+            // Importante: El dorsal viene como String desde Plantilla.kt
+            dorsalOriginal = intent.getStringExtra("dorsal")?.toIntOrNull() ?: -1
+            cargarDatosJugador()
         }
 
-        // 4. EL NUEVO "ON BACK PRESSED" (Soluciona tu error en rojo)
+        // 3. Callback del botón atrás
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 ejecutarGuardadoYSalir()
@@ -74,7 +73,6 @@ class Jugador : AppCompatActivity() {
         val posicion = btnSeleccionarPosicion.text.toString()
         val nuevoDorsal = dorsalText.text.toString().toIntOrNull() ?: 0
 
-        // VALIDACIONES OBLIGATORIAS
         if (nombre.isEmpty() || nombre == "---" || nombre == "Nombre del jugador") {
             mostrarError("Debes introducir un nombre real.")
             return
@@ -92,19 +90,21 @@ class Jugador : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // Comprobamos duplicados en la nube usando idEquipo (que ahora es de clase)
                 val jugadores = RetrofitClient.instance.obtenerJugadores(idEquipo)
+                // Solo es duplicado si el dorsal ya existe en OTRO jugador
                 val yaExiste = jugadores.any { it.dorsal == nuevoDorsal && it.dorsal != dorsalOriginal }
 
                 if (yaExiste) {
                     mostrarError("El dorsal $nuevoDorsal ya está ocupado.")
                 } else {
                     val jugadorEditado = JugadorRemote(
-                        equipo_id = idEquipo, // <--- Verifica que en tu JugadorRemote se llame equipo_id
+                        equipo_id = idEquipo,
                         dorsal = nuevoDorsal,
                         nombre = nombre,
                         posicion = posicion,
                         nota = notaText.text.toString(),
+                        // Si es nuevo mandamos null para que Python haga INSERT
+                        // Si no, mandamos el original para que Python haga UPDATE
                         old_dorsal = if (esNuevo) null else dorsalOriginal
                     )
                     guardarEnNube(jugadorEditado)
@@ -147,17 +147,42 @@ class Jugador : AppCompatActivity() {
         }
     }
 
-    private fun volverAPlantilla() {
-        val intent = Intent(this, Plantilla::class.java).apply {
-            putExtra("id", idEquipo)
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        }
-        startActivity(intent)
-        finish()
+    private fun eliminarJugador() {
+        // 1. Confirmación para evitar accidentes
+        AlertDialog.Builder(this)
+            .setTitle("Eliminar Jugador")
+            .setMessage("¿Seguro que quieres borrar a este jugador? El dorsal $dorsalOriginal quedará libre.")
+            .setPositiveButton("Eliminar") { _, _ ->
+
+                lifecycleScope.launch {
+                    try {
+                        // 2. Petición de borrado a la nube
+                        val response = RetrofitClient.instance.eliminarJugador(idEquipo, dorsalOriginal)
+
+                        if (response.isSuccessful) {
+                            Toast.makeText(this@Jugador, "Jugador eliminado con éxito", Toast.LENGTH_SHORT).show()
+
+                            // 3. RETORNO A LA PLANTILLA (Aquí está el detalle que pedías)
+                            volverAPlantilla()
+                        } else {
+                            Toast.makeText(this@Jugador, "Error: El servidor no pudo borrarlo", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(this@Jugador, "Error de conexión", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
-    private fun eliminarJugador() {
-        // ... Lógica para borrar fila en la nube ...
+    private fun volverAPlantilla() {
+        val intent = Intent(this, Plantilla::class.java).apply {
+            putExtra("id", idEquipo) // Pasamos el ID para que Plantilla.kt sepa qué equipo cargar
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) // Evita que el usuario "vuelva" a un jugador borrado
+        }
+        startActivity(intent)
+        finish() // Cerramos esta pantalla definitivamente
     }
 
     private fun mostrarDialogoPosiciones() {
