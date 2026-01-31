@@ -24,7 +24,16 @@ class Plantilla : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_plantilla)
 
-        idEquipo = intent.getStringExtra("id") ?: return
+        // 1. Manejo único del ID
+        val idRecibido = intent.getStringExtra("id") ?: return
+        if (idRecibido == "NUEVO") {
+            idEquipo = "EQ_" + System.currentTimeMillis()
+            findViewById<EditText>(R.id.Text).setText("Nuevo Equipo")
+        } else {
+            idEquipo = idRecibido
+            // Solo cargamos si el equipo ya existe
+            cargarDatosDesdeNube(idEquipo, findViewById(R.id.Text), findViewById(R.id.btnescudo))
+        }
 
         val nombreEditText: EditText = findViewById(R.id.Text)
         val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
@@ -32,27 +41,18 @@ class Plantilla : AppCompatActivity() {
         val btnHome: ImageButton = findViewById(R.id.btnhome)
         val btnEliminar: ImageButton = findViewById(R.id.btntrash)
 
-        // 1. Ponemos el nombre que viene del Intent DE INMEDIATO
-        val nombreIntent = intent.getStringExtra("----")
-        nombreEditText.setText(nombreIntent)
-
-        // 1. Configuramos el aspecto de los TextViews de inmediato (con texto vacío o "...")
-        prepararInterfazJugadores()
-
-        // 1. CARGAR DATOS DESDE LA API (En lugar de leer BDEQUIPOS.txt)
-        cargarDatosDesdeNube(idEquipo, nombreEditText, btnEscudo)
-
         btnHome.setOnClickListener {
-            // Al pulsar Home, primero guarda y luego navega
-            modificarEquipoEnNube {
+            verificarYGuardar {
                 val intent = Intent(this, ElegirEquipo::class.java)
+                // Esto limpia las actividades anteriores y fuerza a ElegirEquipo a pasar por onCreate/onResume
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
-                finish() // Importante cerrar la actual
+                finish()
             }
         }
 
         btnCampo.setOnClickListener {
-            modificarEquipoEnNube {
+            verificarYGuardar {
                 val intent = Intent(this, CampoActivity::class.java)
                 intent.putExtra("id", idEquipo)
                 startActivity(intent)
@@ -63,18 +63,78 @@ class Plantilla : AppCompatActivity() {
 
         btnEliminar.setOnClickListener {
             android.app.AlertDialog.Builder(this)
-                .setTitle("Confirmación de eliminación")
-                .setMessage("¿Desea resetear este equipo y sus jugadores?")
+                .setTitle("Confirmación")
+                .setMessage("¿Desea eliminar este equipo por completo?")
                 .setPositiveButton("Sí") { _, _ -> eliminarEquipoEnNube(idEquipo) }
                 .setNegativeButton("No", null)
                 .show()
         }
     }
 
+    // --- REFINADO DEL SELECTOR DE IMAGEN ---
+
+    private val launcherSelector = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val dataGaleria = result.data?.data
+            val uriFinal = if (dataGaleria != null) copiarImagenAGuardar(dataGaleria, idEquipo) else fotoUri
+
+            uriFinal?.let { uri ->
+                val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
+
+                // --- EL TRUCO ESTÁ AQUÍ ---
+                Glide.with(this)
+                    .load(uri)
+                    // Usamos una firma nueva para que Glide ignore la foto anterior "fantasma"
+                    .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
+                    .into(btnEscudo)
+
+                btnEscudo.tag = uri.toString()
+
+                // Guardamos en la nube
+                modificarEquipoEnNube {
+                    Toast.makeText(this, "Escudo actualizado", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    // --- LÓGICA DE PERSISTENCIA ---
+
+    private fun verificarYGuardar(onSuccess: () -> Unit) {
+        val nombre = findViewById<EditText>(R.id.Text).text.toString().trim()
+        val uriTag = findViewById<ImageButton>(R.id.btnescudo).tag?.toString() ?: ""
+
+        if (nombre.isEmpty() || nombre == "Nuevo Equipo") {
+            Toast.makeText(this, "Introduce un nombre válido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (uriTag.isEmpty() || uriTag.contains("addescudo")) {
+            Toast.makeText(this, "Debes seleccionar un escudo", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val lista = RetrofitClient.instance.obtenerEquipos()
+                val duplicado = lista.any { it.nombre.equals(nombre, ignoreCase = true) && it.id != idEquipo }
+
+                if (duplicado) {
+                    Toast.makeText(this@Plantilla, "Ya existe un equipo con ese nombre", Toast.LENGTH_SHORT).show()
+                } else {
+                    modificarEquipoEnNube { onSuccess() }
+                }
+            } catch (e: Exception) {
+                // Si falla la red, al menos dejamos salir si ya se guardó localmente
+                onSuccess()
+            }
+        }
+    }
+
     override fun onBackPressed() {
-        // Cuando el usuario intenta salir con el gesto de atrás:
-        modificarEquipoEnNube {
-            super.onBackPressed() // Esto cierra la actividad después de guardar
+        // Bloqueamos el "atrás" si no cumple las reglas
+        verificarYGuardar {
+            super.onBackPressed()
         }
     }
 
@@ -96,23 +156,23 @@ class Plantilla : AppCompatActivity() {
     private fun cargarDatosDesdeNube(id: String, etNombre: EditText, btnEscudo: ImageButton) {
         lifecycleScope.launch {
             try {
-                // 1. Obtenemos la lista de la API
                 val lista = RetrofitClient.instance.obtenerEquipos()
-
-                // 2. Buscamos nuestro equipo
                 val equipo = lista.find { it.id == id }
 
                 equipo?.let {
                     etNombre.setText(it.nombre)
-                    // Importante: usamos it.imageUri de tu clase EquipoRemote
+
+                    // --- APLICAMOS LA FIRMA AQUÍ TAMBIÉN ---
                     Glide.with(this@Plantilla)
                         .load(it.imageUri)
-                        .placeholder(R.drawable.addescudo) // Imagen mientras carga
+                        .placeholder(R.drawable.addescudo)
+                        // Forzamos a Glide a ignorar el caché antiguo usando la hora actual
+                        .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
                         .into(btnEscudo)
+
                     btnEscudo.tag = it.imageUri
                 }
 
-                // 3. Cargamos los jugadores usando el ID del equipo
                 val jugadores = RetrofitClient.instance.obtenerJugadores(id)
                 pintarJugadoresEnInterfaz(jugadores)
 
@@ -187,23 +247,6 @@ class Plantilla : AppCompatActivity() {
                 finish()
             } catch (e: Exception) {
                 Toast.makeText(this@Plantilla, "Error al eliminar", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    // --- LÓGICA DE IMAGEN (Se mantiene similar pero actualiza el .tag para el POST) ---
-
-    private val launcherSelector = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val dataGaleria = result.data?.data
-            val uriFinal = if (dataGaleria != null) copiarImagenAGuardar(dataGaleria, idEquipo) else fotoUri
-
-            uriFinal?.let { uri ->
-                val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
-                Glide.with(this).load(uri).into(btnEscudo)
-                btnEscudo.tag = uri.toString()
-                // Guardamos automáticamente en la nube al cambiar la imagen
-                modificarEquipoEnNube {}
             }
         }
     }

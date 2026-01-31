@@ -1,21 +1,31 @@
 package com.example.pizarra_tactica
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import android.util.Log // Importante para depurar
+import android.util.Log
 
 class ElegirEquipo : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_elegirequipo)
-        consultarEquiposALaNube()
+
+        // Botón estático para crear un equipo nuevo
+        findViewById<ImageButton>(R.id.btn_añadir_nuevo).setOnClickListener {
+            val intent = Intent(this, Plantilla::class.java).apply {
+                // Enviamos "NUEVO" para que la Plantilla sepa que está empezando de cero
+                putExtra("id", "NUEVO")
+                putExtra("nombre", "Nuevo Equipo")
+            }
+            startActivity(intent)
+        }
     }
 
     override fun onResume() {
@@ -24,39 +34,54 @@ class ElegirEquipo : AppCompatActivity() {
     }
 
     private fun consultarEquiposALaNube() {
-        val imageButtonIds = arrayOf(
-            R.id.Jug1, R.id.Jug2, R.id.Jug3, R.id.Jug4, R.id.Jug5,
-            R.id.Jug6, R.id.Jug7, R.id.Jug8, R.id.Jug9, R.id.Jug10,
-            R.id.Jug11, R.id.Jug12, R.id.Jug13, R.id.Jug14, R.id.Jug15,
-            R.id.Jug16, R.id.Jug17, R.id.Jug18, R.id.Jug19, R.id.Jug20
-        )
+        val contenedor = findViewById<LinearLayout>(R.id.contenedorEquipos)
 
         lifecycleScope.launch {
             try {
-                // Retrofit ya devuelve List<EquipoRemote> automáticamente
                 val equiposRemote = RetrofitClient.instance.obtenerEquipos()
 
-                equiposRemote.forEachIndexed { index, equipo ->
-                    if (index < imageButtonIds.size) {
-                        val imageButton = findViewById<ImageButton>(imageButtonIds[index])
+                // Limpiamos los equipos antiguos (pero mantenemos el botón añadir en el XML)
+                // O eliminamos todo y lo re-añadimos para evitar duplicados:
+                actualizarInterfaz(contenedor, equiposRemote)
 
-                        // Usamos .imageUri (que coincide con tu data class EquipoRemote)
-                        Glide.with(this@ElegirEquipo)
-                            .load(equipo.imageUri) // Glide acepta String, no hace falta Uri.parse siempre
-                            .placeholder(R.drawable.addescudo) // Imagen por defecto mientras carga
-                            .into(imageButton)
-
-                        imageButton.setOnClickListener {
-                            val intent = Intent(this@ElegirEquipo, Plantilla::class.java)
-                            intent.putExtra("id", equipo.id)
-                            intent.putExtra("nombre", equipo.nombre)
-                            intent.putExtra("imageUri", equipo.imageUri)
-                            startActivity(intent)
-                        }
-                    }
-                }
             } catch (e: Exception) {
-                Log.e("API_ERROR", "Error conectando a la VM: ${e.message}")
+                Log.e("API_ERROR", "Error: ${e.message}")
+            }
+        }
+    }
+
+    private fun actualizarInterfaz(contenedor: LinearLayout, equipos: List<EquipoRemote>) {
+        if (contenedor.childCount > 1) {
+            contenedor.removeViews(1, contenedor.childCount - 1)
+        }
+
+        equipos.forEach { equipo ->
+            if (equipo.nombre != "Añadir Equipo" && equipo.nombre != "Nuevo Equipo") {
+                val nuevoBoton = ImageButton(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(700, 700).apply {
+                        setMargins(40, 0, 40, 0)
+                    }
+                    scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+                    background = null
+                }
+
+                // --- CAMBIO AQUÍ: Forzamos la actualización ---
+                Glide.with(this)
+                    .load(equipo.imageUri)
+                    .placeholder(R.drawable.addescudo)
+                    // Esto obliga a Glide a refrescar la imagen si el archivo cambió
+                    .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
+                    .into(nuevoBoton)
+
+                nuevoBoton.setOnClickListener {
+                    val intent = Intent(this, Plantilla::class.java).apply {
+                        putExtra("id", equipo.id)
+                        putExtra("nombre", equipo.nombre)
+                        putExtra("imageUri", equipo.imageUri)
+                    }
+                    startActivity(intent)
+                }
+                contenedor.addView(nuevoBoton)
             }
         }
     }
