@@ -168,6 +168,67 @@ class MedioCampo : AppCompatActivity() {
                 setDraggable(child)
             }
         }
+
+        val datosGuardados = intent.getStringExtra("DATOS_ESTRATEGIA")
+        if (datosGuardados != null) {
+            // Usamos post para asegurar que el campo ya tiene dimensiones
+            findViewById<ConstraintLayout>(R.id.main).post {
+                reconstruirPizarra(datosGuardados)
+            }
+        }
+    }
+
+    private fun reconstruirPizarra(datos: String) {
+        val mainLayout = findViewById<ConstraintLayout>(R.id.main)
+
+        // Separamos cada jugador por el punto y coma
+        val jugadores = datos.split(";")
+
+        jugadores.forEach { info ->
+            val partes = info.split(":")
+            if (partes.size == 3) {
+                val dorsal = partes[0]
+                // Convertimos el porcentaje de vuelta a píxeles según el tamaño de la pantalla actual
+                val pX = partes[1].toFloat() * mainLayout.width
+                val pY = partes[2].toFloat() * mainLayout.height
+
+                colocarJugadorGuardado(dorsal, pX, pY)
+            }
+        }
+    }
+
+    private fun colocarJugadorGuardado(dorsal: String, pX: Float, pY: Float) {
+        val playerLayout = ConstraintLayout(this)
+        // 1. Parámetros del contenedor
+        val paramsContenedor = ConstraintLayout.LayoutParams(100, 100)
+        playerLayout.layoutParams = paramsContenedor
+
+        val newPlayer = ImageView(this)
+        newPlayer.setImageResource(R.drawable.baseline_circle_24_blue)
+        // 2. Parámetros de la imagen (nombre distinto)
+        val paramsImagen = ConstraintLayout.LayoutParams(100, 100)
+        newPlayer.layoutParams = paramsImagen
+
+        val numberTextView = TextView(this).apply {
+            text = dorsal
+            textSize = 14f
+            setTextColor(ContextCompat.getColor(context, R.color.white))
+            gravity = android.view.Gravity.CENTER
+            // 3. Parámetros del texto
+            val paramsTexto = ConstraintLayout.LayoutParams(100, 100)
+            layoutParams = paramsTexto
+        }
+
+        playerLayout.addView(newPlayer)
+        playerLayout.addView(numberTextView)
+
+        val mainLayout = findViewById<ConstraintLayout>(R.id.main)
+        mainLayout.addView(playerLayout)
+
+        playerLayout.x = pX
+        playerLayout.y = pY
+
+        setDraggable(playerLayout)
     }
 
     private fun toggleVisibility(vararg views: View, makeVisible: Boolean) {
@@ -311,16 +372,68 @@ class MedioCampo : AppCompatActivity() {
 
     private fun mostraropciones(id: String) {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("MENU")
-        builder.setItems(opciones) { dialog, which ->
-            when (opciones[which]) {
-                "Elegir equipo" -> startActivity(Intent(this, ElegirEquipo::class.java))
-                "Elegir campo" -> startActivity(Intent(this, CampoActivity::class.java).putExtra("id", id))
-                "Guardar pizarra" -> startActivity(Intent(this, CampoActivity::class.java))
-                "Salir sin guardar" -> startActivity(Intent(this, MenuActivity::class.java))
-            }
+        builder.setTitle("Opciones de Pizarra")
+        val opcionesMenu = arrayOf("Guardar Pizarra") // Solo esta opción
+
+        builder.setItems(opcionesMenu) { _, _ ->
+            solicitarNombreYPizarra(id)
         }
         builder.show()
+    }
+
+    private fun solicitarNombreYPizarra(idEquipo: String) {
+        val input = android.widget.EditText(this)
+        input.hint = "Nombre de la jugada (ej: Corner 1)"
+
+        AlertDialog.Builder(this)
+            .setTitle("Guardar Estrategia")
+            .setView(input)
+            .setPositiveButton("Guardar") { _, _ ->
+                val nombreJugada = input.text.toString()
+                if (nombreJugada.isNotEmpty()) {
+                    capturarYEnviarEstrategia(idEquipo, nombreJugada)
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun capturarYEnviarEstrategia(idEquipo: String, nombre: String) {
+        val mainLayout = findViewById<ConstraintLayout>(R.id.main)
+        val listaPosiciones = mutableListOf<String>()
+
+        // 1. Recorremos todos los elementos del campo
+        for (i in 0 until mainLayout.childCount) {
+            val vista = mainLayout.getChildAt(i)
+
+            // Identificamos si es un Layout de jugador (el que creamos en addPlayerToLayout)
+            if (vista is ConstraintLayout && vista.id == View.NO_ID) {
+                // Buscamos el TextView dentro del Layout para saber el dorsal
+                val tvDorsal = vista.getChildAt(1) as? TextView
+                val dorsal = tvDorsal?.text.toString()
+
+                // Guardamos: dorsal, x, y (usamos porcentajes para que sirva en cualquier móvil)
+                val posX = vista.x / mainLayout.width
+                val posY = vista.y / mainLayout.height
+                listaPosiciones.add("$dorsal:$posX:$posY")
+            }
+        }
+
+        // 2. Convertimos la lista a un solo texto plano para la DB
+        val datosSerializados = listaPosiciones.joinToString(";")
+
+        // 3. Enviamos a la nube
+        lifecycleScope.launch {
+            try {
+                val estrategia = EstrategiaRemote(idEquipo, nombre, "medio", datosSerializados)
+                val response = RetrofitClient.instance.guardarEstrategia(estrategia)
+                if (response.isSuccessful) {
+                    Toast.makeText(this@MedioCampo, "¡Pizarra '$nombre' guardada!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@MedioCampo, "Error al conectar", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun actualizarListaJugadores(id: String) {

@@ -17,3 +17,10 @@ data class EquipoRemote(
     @SerializedName("imageUri") val imageUri: String,
     @SerializedName("user_id") val user_id: String
 )
+
+data class EstrategiaRemote(
+    val equipo_id: String,
+    val nombre: String,
+    val tipo_campo: String,
+    val datos_jugadores: String // Aquí enviaremos un JSON con las posiciones
+)

@@ -17,8 +17,15 @@ interface ApiService {
     @GET("jugadores/{eq_id}")
     suspend fun obtenerJugadores(@Path("eq_id") equipoId: String): List<JugadorRemote>
 
+
+    @GET("estrategias/{eq_id}")
+    suspend fun obtenerEstrategias(@Path("eq_id") eqId: String): List<EstrategiaRemote>
+
     @POST("jugador")
     suspend fun guardarJugador(@Body jugador: JugadorRemote): Response<Unit>
+
+    @POST("estrategia")
+    suspend fun guardarEstrategia(@Body estrategia: EstrategiaRemote): Response<Unit>
 
     // NUEVO: Para actualizar el nombre y escudo del equipo en la nube
     @POST("equipo")
@@ -29,4 +36,5 @@ interface ApiService {
         @Path("eq_id") eqId: String,
         @Path("dorsal") dorsal: Int
     ): Response<Unit>
+
 }
