@@ -8,89 +8,73 @@
     tools:context=".CampoActivity"
     android:background="@drawable/nuevofondo">
 
-
     <TextView
-
         android:id="@+id/Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:layout_marginBottom="20dp"
-        android:background="@color/cardview_shadow_start_color"
-        android:backgroundTint="@color/cardview_shadow_start_color"
         android:fontFamily="casual"
-        android:text="ELIGE EL CAMPO A UTLIZAR PARA TU PIZARRA"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:text="ELIGE TU PIZARRA"
         android:textColor="@color/whitebottom"
-        android:textFontWeight="@integer/material_motion_duration_long_2"
-        android:textSize="45dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="45sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.09" />
+        app:layout_constraintVertical_bias="0.1" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/campoo"
         android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="100dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="32dp"
         android:layout_marginEnd="16dp"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="32dp"
         app:cardBackgroundColor="@color/whitebottom"
         app:cardCornerRadius="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_estrategias"
         app:layout_constraintEnd_toStartOf="@+id/campito"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Text">
 
-        >
-
-
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="400dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:src="@drawable/y5piyd01" />
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
+            android:padding="20dp"
+            android:src="@drawable/y5piyd01" />
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/campito"
         android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="100dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="32dp"
         app:cardBackgroundColor="@color/whitebottom"
         app:cardCornerRadius="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_estrategias"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/campoo"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Text">
 
-        >
-
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/mediocamposvg" />
-
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-
+            android:padding="20dp"
+            android:src="@drawable/mediocamposvg" />
     </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/btn_estrategias"
+        android:layout_width="300dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="50dp"
+        android:backgroundTint="#2C2839"
+        android:text="ESTRATEGIAS"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:fontFamily="casual"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

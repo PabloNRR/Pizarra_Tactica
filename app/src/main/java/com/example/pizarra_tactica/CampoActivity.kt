@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import android.widget.Button
 
 class CampoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,13 @@ class CampoActivity : AppCompatActivity() {
         mediocampo.setOnClickListener{
             val intent: Intent = Intent(this,MedioCampo::class.java)
             intent.putExtra("id", id) // Pasar el ID al MedioCampo
+            startActivity(intent)
+        }
+
+        val btnEstrategias: Button = findViewById(R.id.btn_estrategias)
+        btnEstrategias.setOnClickListener {
+            val intent = Intent(this, EstrategiasActivity::class.java)
+            intent.putExtra("id", id) // Pasamos el ID del equipo
             startActivity(intent)
         }
     }
