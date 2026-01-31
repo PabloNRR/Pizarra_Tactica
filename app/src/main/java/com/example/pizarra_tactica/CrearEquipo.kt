@@ -60,7 +60,8 @@ class CrearEquipo : AppCompatActivity() {
             val equipoActualizado = EquipoRemote(
                 id = idEquipo,
                 nombre = nombreFinal,
-                imageUri = uriFinal
+                imageUri = uriFinal,
+                user_id = "hola"
             )
 
             // 2. GUARDAMOS EN LA NUBE

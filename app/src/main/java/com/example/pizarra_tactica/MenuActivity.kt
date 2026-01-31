@@ -2,6 +2,7 @@ package com.example.pizarra_tactica
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -30,42 +31,39 @@ class MenuActivity : AppCompatActivity() {
             insets
         }
 
-        // 1. GESTIÓN DE SESIÓN
-        val fromLogin = intent.getBooleanExtra(EXTRA_FROM_LOGIN, false)
-        if (!fromLogin) {
-            auth.signOut()
+        // 1. GESTIÓN DE SESIÓN (MEJORADA)
+        // Solo cerramos sesión si queremos forzar un logout.
+        // Si ya hay un usuario, lo dejamos pasar.
+        if (auth.currentUser == null) {
+            // Si no hay usuario, aseguramos que los SharedPreferences estén limpios
             getSharedPreferences("auth", MODE_PRIVATE).edit().clear().apply()
         }
 
-        // 2. ELIMINAMOS LA CREACIÓN DE FICHEROS .txt
-        // Ya no necesitamos crearFicheroBDEquipos, etc. porque la estructura está en SQL.
-
-        // 3. NAVEGACIÓN
+        // 2. NAVEGACIÓN
         val mainLayout: ConstraintLayout = findViewById(R.id.main)
         mainLayout.setOnClickListener {
             if (auth.currentUser == null) {
                 startActivity(Intent(this, Login::class.java))
             } else {
-                // Al hacer clic, vamos directamente a elegir equipo, que cargará desde la API
                 startActivity(Intent(this, ElegirEquipo::class.java))
             }
         }
 
-        // 4. VERIFICACIÓN DE SALUD DE LA API
-        // Esto sirve para confirmar que la tablet tiene internet y la VM está encendida
+        // 3. VERIFICACIÓN DE SALUD
         verificarConexionNube()
     }
 
     private fun verificarConexionNube() {
+        // Obtenemos el UID actual si existe, o usamos uno de "test" para el ping
+        val uidParaCheck = auth.currentUser?.uid ?: "ping_check"
+
         lifecycleScope.launch {
             try {
-                val respuesta = RetrofitClient.instance.obtenerEquipos()
-                // Si llegamos aquí, la conexión es correcta
-                android.util.Log.d("API_CHECK", "Nube lista: ${respuesta.size} equipos detectados")
+                // AHORA PASAMOS EL UID (Soluciona el error en rojo)
+                val respuesta = RetrofitClient.instance.obtenerEquipos(uidParaCheck)
+                Log.d("API_CHECK", "Nube lista: Conexión establecida")
             } catch (e: Exception) {
-                android.util.Log.e("API_CHECK", "Error de conexión a la nube: ${e.message}")
-                // Opcional: Mostrar un Toast si la VM está apagada
-                // Toast.makeText(this@MenuActivity, "Sin conexión al servidor táctico", Toast.LENGTH_LONG).show()
+                Log.e("API_CHECK", "Error de conexión a la nube: ${e.message}")
             }
         }
     }

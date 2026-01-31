@@ -5,10 +5,12 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     @GET("equipos")
-    suspend fun obtenerEquipos(): List<EquipoRemote>
+    suspend fun obtenerEquipos(@Query("user_id") userId: String): List<EquipoRemote>
+
 
     @GET("jugadores/{eq_id}")
     suspend fun obtenerJugadores(@Path("eq_id") equipoId: String): List<JugadorRemote>

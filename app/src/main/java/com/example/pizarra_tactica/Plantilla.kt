@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth // <--- IMPORTANTE
 import kotlinx.coroutines.launch
 import java.io.File
 import android.provider.MediaStore
@@ -20,22 +21,24 @@ class Plantilla : AppCompatActivity() {
     private var fotoUri: Uri? = null
     private lateinit var idEquipo: String
 
+    // Propiedad para obtener el ID del usuario actual de forma rápida
+    private val currentUid: String
+        get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_plantilla)
 
-        // 1. Manejo único del ID
         val idRecibido = intent.getStringExtra("id") ?: return
+
         if (idRecibido == "NUEVO") {
             idEquipo = "EQ_" + System.currentTimeMillis()
             findViewById<EditText>(R.id.Text).setText("Nuevo Equipo")
         } else {
             idEquipo = idRecibido
-            // Solo cargamos si el equipo ya existe
             cargarDatosDesdeNube(idEquipo, findViewById(R.id.Text), findViewById(R.id.btnescudo))
         }
 
-        val nombreEditText: EditText = findViewById(R.id.Text)
         val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
         val btnCampo: ImageButton = findViewById(R.id.btncampo)
         val btnHome: ImageButton = findViewById(R.id.btnhome)
@@ -44,7 +47,6 @@ class Plantilla : AppCompatActivity() {
         btnHome.setOnClickListener {
             verificarYGuardar {
                 val intent = Intent(this, ElegirEquipo::class.java)
-                // Esto limpia las actividades anteriores y fuerza a ElegirEquipo a pasar por onCreate/onResume
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
                 finish()
@@ -80,17 +82,13 @@ class Plantilla : AppCompatActivity() {
 
             uriFinal?.let { uri ->
                 val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
-
-                // --- EL TRUCO ESTÁ AQUÍ ---
                 Glide.with(this)
                     .load(uri)
-                    // Usamos una firma nueva para que Glide ignore la foto anterior "fantasma"
                     .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
                     .into(btnEscudo)
 
                 btnEscudo.tag = uri.toString()
 
-                // Guardamos en la nube
                 modificarEquipoEnNube {
                     Toast.makeText(this, "Escudo actualizado", Toast.LENGTH_SHORT).show()
                 }
@@ -98,7 +96,7 @@ class Plantilla : AppCompatActivity() {
         }
     }
 
-    // --- LÓGICA DE PERSISTENCIA ---
+    // --- LÓGICA DE PERSISTENCIA ACTUALIZADA ---
 
     private fun verificarYGuardar(onSuccess: () -> Unit) {
         val nombre = findViewById<EditText>(R.id.Text).text.toString().trim()
@@ -116,7 +114,8 @@ class Plantilla : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val lista = RetrofitClient.instance.obtenerEquipos()
+                // PASO CLAVE: Filtrar por el usuario actual para validar duplicados
+                val lista = RetrofitClient.instance.obtenerEquipos(currentUid)
                 val duplicado = lista.any { it.nombre.equals(nombre, ignoreCase = true) && it.id != idEquipo }
 
                 if (duplicado) {
@@ -125,51 +124,29 @@ class Plantilla : AppCompatActivity() {
                     modificarEquipoEnNube { onSuccess() }
                 }
             } catch (e: Exception) {
-                // Si falla la red, al menos dejamos salir si ya se guardó localmente
                 onSuccess()
             }
         }
     }
 
     override fun onBackPressed() {
-        // Bloqueamos el "atrás" si no cumple las reglas
-        verificarYGuardar {
-            super.onBackPressed()
-        }
-    }
-
-    private fun prepararInterfazJugadores() {
-        val textViews = arrayOf(
-            R.id.Jug1, R.id.Jug2, R.id.Jug3, R.id.Jug4, R.id.Jug5, R.id.Jug6,
-            R.id.Jug7, R.id.Jug8, R.id.Jug9, R.id.Jug10, R.id.Jug11, R.id.Jug12,
-            R.id.Jug13, R.id.Jug14, R.id.Jug15, R.id.Jug16, R.id.Jug17, R.id.Jug18,
-            R.id.Jug19, R.id.Jug20, R.id.Jug21, R.id.Jug22, R.id.Jug23, R.id.Jug24
-        )
-
-        for (id in textViews) {
-            val tv = findViewById<TextView>(id)
-            tv.typeface = android.graphics.Typeface.MONOSPACE
-            tv.text = " -- | ---------           --" // Texto de espera con el mismo ancho
-        }
+        verificarYGuardar { super.onBackPressed() }
     }
 
     private fun cargarDatosDesdeNube(id: String, etNombre: EditText, btnEscudo: ImageButton) {
         lifecycleScope.launch {
             try {
-                val lista = RetrofitClient.instance.obtenerEquipos()
+                // PASO CLAVE: Obtener solo los equipos del usuario logueado
+                val lista = RetrofitClient.instance.obtenerEquipos(currentUid)
                 val equipo = lista.find { it.id == id }
 
                 equipo?.let {
                     etNombre.setText(it.nombre)
-
-                    // --- APLICAMOS LA FIRMA AQUÍ TAMBIÉN ---
                     Glide.with(this@Plantilla)
                         .load(it.imageUri)
                         .placeholder(R.drawable.addescudo)
-                        // Forzamos a Glide a ignorar el caché antiguo usando la hora actual
                         .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
                         .into(btnEscudo)
-
                     btnEscudo.tag = it.imageUri
                 }
 
@@ -177,7 +154,7 @@ class Plantilla : AppCompatActivity() {
                 pintarJugadoresEnInterfaz(jugadores)
 
             } catch (e: Exception) {
-                Toast.makeText(this@Plantilla, "Error al sincronizar con la nube", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@Plantilla, "Error al sincronizar", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -200,7 +177,7 @@ class Plantilla : AppCompatActivity() {
                     modificarEquipoEnNube {
                         val intent = Intent(this, Jugador::class.java).apply {
                             putExtra("id", idEquipo)
-                            putExtra("dorsal", j.dorsal.toString()) // Convertimos Int a String para el Intent
+                            putExtra("dorsal", j.dorsal.toString())
                         }
                         startActivity(intent)
                     }
@@ -213,22 +190,15 @@ class Plantilla : AppCompatActivity() {
         val nombre = findViewById<EditText>(R.id.Text).text.toString()
         val uri = findViewById<ImageButton>(R.id.btnescudo).tag?.toString() ?: ""
 
-        val equipoActualizado = EquipoRemote(idEquipo, nombre, uri)
+        // PASO CLAVE: Incluir el currentUid en el objeto
+        val equipoActualizado = EquipoRemote(idEquipo, nombre, uri, currentUid)
 
         lifecycleScope.launch {
             try {
-                // Llamamos a la API y esperamos la respuesta del servidor
                 val respuesta = RetrofitClient.instance.guardarEquipo(equipoActualizado)
-
-                if (respuesta.isSuccessful) {
-                    // SOLO cuando el servidor confirma que guardó, ejecutamos la navegación
-                    onComplete()
-                } else {
-                    Toast.makeText(this@Plantilla, "Error al guardar en la nube", Toast.LENGTH_SHORT).show()
-                }
+                if (respuesta.isSuccessful) onComplete()
             } catch (e: Exception) {
-                Toast.makeText(this@Plantilla, "Sin conexión: no se guardaron los cambios", Toast.LENGTH_SHORT).show()
-                // Opcional: onComplete() si quieres que salga de todos modos aunque falle
+                Toast.makeText(this@Plantilla, "Error de red", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -236,12 +206,14 @@ class Plantilla : AppCompatActivity() {
     private fun eliminarEquipoEnNube(id: String) {
         lifecycleScope.launch {
             try {
-                // El reset en la nube lo hacemos enviando los valores por defecto
-                val equipoReset = EquipoRemote(id, "Añadir Equipo", "android.resource://$packageName/drawable/addescudo")
+                // PASO CLAVE: Resetear enviando el UID para que el servidor sepa de quién es
+                val equipoReset = EquipoRemote(
+                    id,
+                    "Añadir Equipo",
+                    "android.resource://$packageName/drawable/addescudo",
+                    currentUid
+                )
                 RetrofitClient.instance.guardarEquipo(equipoReset)
-
-                // Aquí podrías añadir una ruta en la API para borrar jugadores,
-                // o simplemente resetear el equipo como estás haciendo.
 
                 startActivity(Intent(this@Plantilla, ElegirEquipo::class.java))
                 finish()
@@ -251,6 +223,7 @@ class Plantilla : AppCompatActivity() {
         }
     }
 
+    // --- MÉTODOS DE IMAGEN (Se mantienen igual) ---
     private fun abrirOpcionesImagen() {
         val intentGaleria = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
         fotoUri = crearUriTemporal()

@@ -9,9 +9,9 @@ data class JugadorRemote(
     val posicion: String,
     val nota: String
 )
-
 data class EquipoRemote(
     val id: String,
     val nombre: String,
-    @SerializedName("image_uri") val imageUri: String
+    val imageUri: String, // Coincide con datos.get('imageUri') en tu Python
+    val user_id: String   // El UID de Firebase
 )

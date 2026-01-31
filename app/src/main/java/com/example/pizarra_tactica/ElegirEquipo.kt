@@ -26,6 +26,22 @@ class ElegirEquipo : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
+        // Botón para cerrar sesión
+        findViewById<ImageButton>(R.id.btn_logout).setOnClickListener {
+            // 1. Cerramos la sesión en Firebase
+            com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+
+            // 2. Limpiamos la "memoria" local de la tablet
+            getSharedPreferences("auth", MODE_PRIVATE).edit().clear().apply()
+
+            // 3. Volvemos a la pantalla de Login
+            val intent = Intent(this, Login::class.java)
+            // Estas flags sirven para que no se pueda volver atrás con el botón del móvil
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
     }
 
     override fun onResume() {
@@ -35,15 +51,22 @@ class ElegirEquipo : AppCompatActivity() {
 
     private fun consultarEquiposALaNube() {
         val contenedor = findViewById<LinearLayout>(R.id.contenedorEquipos)
+        // 1. Obtenemos el usuario que inició sesión
+        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        val uid = user?.uid // Este es el ID único de ese correo
+
+        if (uid == null) {
+            // Si no hay nadie logueado, lo mandamos de vuelta al Login
+            startActivity(Intent(this, Login::class.java))
+            finish()
+            return
+        }
 
         lifecycleScope.launch {
             try {
-                val equiposRemote = RetrofitClient.instance.obtenerEquipos()
-
-                // Limpiamos los equipos antiguos (pero mantenemos el botón añadir en el XML)
-                // O eliminamos todo y lo re-añadimos para evitar duplicados:
+                // 2. Pasamos el UID a la consulta GET
+                val equiposRemote = RetrofitClient.instance.obtenerEquipos(uid)
                 actualizarInterfaz(contenedor, equiposRemote)
-
             } catch (e: Exception) {
                 Log.e("API_ERROR", "Error: ${e.message}")
             }

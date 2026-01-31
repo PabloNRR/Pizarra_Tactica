@@ -6,6 +6,21 @@
     android:layout_height="match_parent"
     android:background="@drawable/fondoelegirequipo">
 
+    <ImageButton
+        android:id="@+id/btn_logout"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Cerrar sesión"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:src="@android:drawable/ic_menu_revert"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
     <TextView
         android:id="@+id/Text"
         android:layout_width="wrap_content"
