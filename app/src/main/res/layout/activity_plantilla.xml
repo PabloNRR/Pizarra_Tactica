@@ -103,209 +103,31 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="8dp">
 
-                <!-- Lista de jugadores -->
-                <TextView
-                    android:id="@+id/Jug1"
+                <LinearLayout
+                    android:id="@+id/contenedorJugadores"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
 
-                <TextView
-                    android:id="@+id/Jug2"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug3"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug4"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug5"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug6"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug7"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug8"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug9"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug10"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug11"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug12"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug13"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug14"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug15"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug16"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug17"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug18"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug19"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug20"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug21"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug22"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug23"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
-
-                <TextView
-                    android:id="@+id/Jug24"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="       0      |  Nombre del jugador                    DC"
-                    android:textColor="@color/white"
-                    android:textSize="40sp"  />
+                <ImageButton
+                    android:id="@+id/btn_add_jugador"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="fitCenter"
+                    android:src="@android:drawable/ic_input_add"
+                    app:tint="@color/white" />
 
             </LinearLayout>
-
         </ScrollView>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -6,6 +6,10 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.LinearLayout
+import android.view.ViewGroup
+import android.view.Gravity
+
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth // <--- IMPORTANTE
 import kotlinx.coroutines.launch
 import java.io.File
 import android.provider.MediaStore
+
 
 class Plantilla : AppCompatActivity() {
 
@@ -160,29 +165,43 @@ class Plantilla : AppCompatActivity() {
     }
 
     private fun pintarJugadoresEnInterfaz(jugadores: List<JugadorRemote>) {
-        val textViews = arrayOf(
-            R.id.Jug1, R.id.Jug2, R.id.Jug3, R.id.Jug4, R.id.Jug5, R.id.Jug6,
-            R.id.Jug7, R.id.Jug8, R.id.Jug9, R.id.Jug10, R.id.Jug11, R.id.Jug12,
-            R.id.Jug13, R.id.Jug14, R.id.Jug15, R.id.Jug16, R.id.Jug17, R.id.Jug18,
-            R.id.Jug19, R.id.Jug20, R.id.Jug21, R.id.Jug22, R.id.Jug23, R.id.Jug24
-        )
+        val contenedor = findViewById<LinearLayout>(R.id.contenedorJugadores)
+        contenedor.removeAllViews() // Limpiamos la lista anterior
 
-        jugadores.forEachIndexed { index, j ->
-            if (index < textViews.size) {
-                val tv = findViewById<TextView>(textViews[index])
-                val texto = String.format(" %2d | %-20s  %3s", j.dorsal, j.nombre.take(20), j.posicion.take(3))
-                tv.typeface = android.graphics.Typeface.MONOSPACE
-                tv.text = texto
-                tv.setOnClickListener {
-                    modificarEquipoEnNube {
-                        val intent = Intent(this, Jugador::class.java).apply {
-                            putExtra("id", idEquipo)
-                            putExtra("dorsal", j.dorsal.toString())
-                        }
-                        startActivity(intent)
+        // 1. Dibujamos los jugadores que ya existen en la nube
+        jugadores.forEach { j ->
+            val tv = TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    80 // Altura de cada fila
+                )
+                // Formato de texto: Dorsal | Nombre | Posición
+                text = String.format("       %2d      |  %-30s  %3s", j.dorsal, j.nombre, j.posicion)
+                setTextColor(android.graphics.Color.WHITE)
+                textSize = 30f
+                typeface = android.graphics.Typeface.MONOSPACE
+
+                setOnClickListener {
+                    // Al pulsar, vamos a editar este jugador
+                    val intent = Intent(this@Plantilla, Jugador::class.java).apply {
+                        putExtra("id", idEquipo)
+                        putExtra("dorsal", j.dorsal.toString())
                     }
+                    startActivity(intent)
                 }
             }
+            contenedor.addView(tv)
+        }
+
+        // 2. Configuramos el botón de añadir (el que pusimos en el XML)
+        findViewById<ImageButton>(R.id.btn_add_jugador).setOnClickListener {
+            // Saltamos directamente a la pantalla de Jugador
+            val intent = Intent(this, Jugador::class.java).apply {
+                putExtra("id", idEquipo)
+                putExtra("ES_NUEVO", true) // Solo le decimos que es un jugador nuevo
+                // No pasamos dorsal, porque Jugador.kt decidirá cuál usar
+            }
+            startActivity(intent)
         }
     }
 
