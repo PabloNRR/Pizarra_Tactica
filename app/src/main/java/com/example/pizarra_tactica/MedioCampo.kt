@@ -8,6 +8,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
+
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -19,13 +21,16 @@ import com.example.pizarra_tactica.databinding.ActivityMedioCampoBinding
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.widget.TextView
-import java.io.File
 import android.widget.Toast
+
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 
 
 class MedioCampo : AppCompatActivity() {
 
+    private var modoBorradorActivo = false // <--- NUEVA VARIABLE
     lateinit var jugada: ImageButton
     lateinit var jugador: ImageButton
     lateinit var balon: ImageButton
@@ -54,6 +59,7 @@ class MedioCampo : AppCompatActivity() {
         setContentView(R.layout.activity_medio_campo)
 
         val id = intent.getStringExtra("id") ?: return
+        actualizarListaJugadores(id)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -115,26 +121,39 @@ class MedioCampo : AppCompatActivity() {
         }
 
         jugada.setOnClickListener {
+            modoBorradorActivo = false
             dibujoView.setDrawingEnabled(false)
-        }
-
-        guardar.setOnClickListener {
-            dibujoView.setDrawingEnabled(false)
+            actualizarColoresHerramientas(jugada) // Ilumina jugada
         }
 
         brush.setOnClickListener {
+            modoBorradorActivo = false
             dibujoView.setDrawMode(Dibujo.DrawMode.FREE)
             dibujoView.setDrawingEnabled(true)
-        }
-
-        goma.setOnClickListener {
-            dibujoView.setDrawMode(Dibujo.DrawMode.ERASE)
-            dibujoView.setDrawingEnabled(true)
+            actualizarColoresHerramientas(brush) // Ilumina pincel
         }
 
         lineas.setOnClickListener {
+            modoBorradorActivo = false
             dibujoView.setDrawMode(Dibujo.DrawMode.ARROW)
             dibujoView.setDrawingEnabled(true)
+            actualizarColoresHerramientas(lineas) // Ilumina flechas
+        }
+
+        goma.setOnClickListener {
+            modoBorradorActivo = true
+            dibujoView.setDrawMode(Dibujo.DrawMode.ERASE)
+            dibujoView.setDrawingEnabled(true)
+            actualizarColoresHerramientas(goma) // Ilumina goma
+        }
+
+        lineas.setOnClickListener {
+            modoBorradorActivo = false
+            dibujoView.setDrawMode(Dibujo.DrawMode.ARROW)
+            dibujoView.setDrawingEnabled(true)
+
+            // Iluminamos las líneas y apagamos la goma
+            actualizarColoresHerramientas(lineas)
         }
 
         jugador.setOnClickListener {
@@ -162,6 +181,16 @@ class MedioCampo : AppCompatActivity() {
 
     private fun setDraggable(view: View) {
         view.setOnTouchListener { v, event ->
+            // SI LA GOMA ESTÁ ACTIVA: Borramos el jugador al tocarlo
+            if (modoBorradorActivo) {
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    val parent = v.parent as ConstraintLayout
+                    parent.removeView(v) // Elimina el jugador (el playerLayout)
+                }
+                return@setOnTouchListener true
+            }
+
+            // SI LA GOMA NO ESTÁ ACTIVA: Lógica de arrastre normal
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     dX = v.x - event.rawX
@@ -261,6 +290,25 @@ class MedioCampo : AppCompatActivity() {
         setDraggable(playerLayout)
     }
 
+    // Añade esta función al final de tu clase MedioCampo.kt
+    private fun actualizarColoresHerramientas(herramientaActiva: ImageButton) {
+        val colorAzul = android.graphics.Color.BLUE
+        val colorNegro = android.graphics.Color.BLACK
+
+        // 1. Añadimos todos los botones que queremos que "brillen"
+        val botones = listOf(brush, goma, lineas, jugada)
+
+        botones.forEach { boton ->
+            if (boton == herramientaActiva) {
+                // Aplicamos el tinte azul al icono
+                boton.setColorFilter(colorAzul, android.graphics.PorterDuff.Mode.SRC_IN)
+            } else {
+                // Limpiamos el tinte (vuelve a negro o color original)
+                boton.setColorFilter(colorNegro, android.graphics.PorterDuff.Mode.SRC_IN)
+            }
+        }
+    }
+
     private fun mostraropciones(id: String) {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("MENU")
@@ -276,65 +324,37 @@ class MedioCampo : AppCompatActivity() {
     }
 
     private fun actualizarListaJugadores(id: String) {
-        // Obtener el archivo en el directorio interno
-        val archivo = File(filesDir, "BDPLANTILLAS.txt")
-        if (!archivo.exists()) return // Si el archivo no existe, salir
+        val contenedor = findViewById<LinearLayout>(R.id.banquilloContenedor)
+        contenedor.removeAllViews()
 
-        // Leer el contenido del archivo
-        val lineas = archivo.readLines()
+        // 1. LANZAMOS LA CORRUTINA (Esto quita el error en rojo)
+        lifecycleScope.launch {
+            try {
+                // 2. Ahora sí podemos llamar a la función suspendida
+                val listaJugadores = RetrofitClient.instance.obtenerJugadores(id)
 
-        // Procesar cada línea y actualizar los TextViews
-        lineas.forEachIndexed { index, linea ->
-            val partes = linea.split("-")
-            if (partes.size < 5) return@forEachIndexed // Ignorar líneas mal formadas
+                // 3. Pintamos los dorsales en el banquillo
+                listaJugadores.forEach { jugador ->
+                    val tv = TextView(this@MedioCampo).apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            setMargins(20, 0, 20, 0)
+                        }
+                        text = jugador.dorsal.toString()
+                        textSize = 40f
+                        setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white))
 
-            val idequipo = partes[0]
-            val dorsal = partes[1]
-
-            // Asegurarse de que el ID del equipo coincida con el actual
-            if (idequipo != id) return@forEachIndexed
-
-            // Formatear el texto para el TextView correspondiente
-            val textoFormateado = String.format(
-                "%2s  ",
-                dorsal,
-            )
-
-            // Acceder al TextView directamente usando su ID
-            val textView = when (index % 24) {
-                0 -> findViewById<TextView>(R.id.Jug1)
-                1 -> findViewById(R.id.Jug2)
-                2 -> findViewById(R.id.Jug3)
-                3 -> findViewById(R.id.Jug4)
-                4 -> findViewById(R.id.Jug5)
-                5 -> findViewById(R.id.Jug6)
-                6 -> findViewById(R.id.Jug7)
-                7 -> findViewById(R.id.Jug8)
-                8 -> findViewById(R.id.Jug9)
-                9 -> findViewById(R.id.Jug10)
-                10 -> findViewById(R.id.Jug11)
-                11 -> findViewById(R.id.Jug12)
-                12 -> findViewById(R.id.Jug13)
-                13 -> findViewById(R.id.Jug14)
-                14 -> findViewById(R.id.Jug15)
-                15 -> findViewById(R.id.Jug16)
-                16 -> findViewById(R.id.Jug17)
-                17 -> findViewById(R.id.Jug18)
-                18 -> findViewById(R.id.Jug19)
-                19 -> findViewById(R.id.Jug20)
-                20 -> findViewById(R.id.Jug21)
-                21 -> findViewById(R.id.Jug22)
-                22 -> findViewById(R.id.Jug23)
-                23 -> findViewById(R.id.Jug24)
-                else -> null
-            }
-
-            textView?.text = textoFormateado
-
-            // Configurar el OnClickListener para cada TextView
-            textView?.setOnClickListener {
-                val dorsal = textView.text.toString() // Obtener el texto del dorsal
-                addPlayerToLayout(false, dorsal) //jugador azul por false
+                        setOnClickListener {
+                            addPlayerToLayout(false, jugador.dorsal.toString())
+                        }
+                    }
+                    contenedor.addView(tv)
+                }
+            } catch (e: Exception) {
+                // Siempre es bueno avisar si algo falla
+                android.widget.Toast.makeText(this@MedioCampo, "Error al cargar banquillo", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
     }
