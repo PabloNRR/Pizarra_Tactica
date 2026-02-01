@@ -38,7 +38,6 @@ class Register : AppCompatActivity() {
         binding.btnRegister.setOnClickListener { doRegister() }
 
         binding.btnGoLogin.setOnClickListener {
-            // Volver a login
             startActivity(Intent(this, Login::class.java))
             finish()
         }
@@ -75,7 +74,8 @@ class Register : AppCompatActivity() {
 
         auth.createUserWithEmailAndPassword(email, pass)
             .addOnSuccessListener {
-                // Token (para futuras llamadas al backend si queréis)
+                // El usuario YA queda logueado tras registrarse.
+                // Guardamos token si queréis usarlo luego con el backend
                 auth.currentUser?.getIdToken(true)
                     ?.addOnSuccessListener { result ->
                         val token = result.token.orEmpty()
@@ -84,10 +84,10 @@ class Register : AppCompatActivity() {
                             .putString("firebase_id_token", token)
                             .apply()
 
-                        goToLogin()
+                        goToEditProfile()
                     }
                     ?.addOnFailureListener {
-                        goToLogin()
+                        goToEditProfile()
                     }
             }
             .addOnFailureListener { e ->
@@ -106,6 +106,15 @@ class Register : AppCompatActivity() {
             }
     }
 
+    private fun goToEditProfile() {
+        val intent = Intent(this, EditarPerfilActivity::class.java).apply {
+            putExtra(EditarPerfilActivity.EXTRA_FROM_REGISTER, true)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+
     private fun setLoading(loading: Boolean) {
         binding.progress.visibility = if (loading) View.VISIBLE else View.GONE
         binding.btnRegister.isEnabled = !loading
@@ -117,13 +126,4 @@ class Register : AppCompatActivity() {
         binding.tvError.visibility = View.VISIBLE
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
-
-    private fun goToLogin() {
-        val intent = Intent(this, Login::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        startActivity(intent)
-        finish()
-    }
-
 }

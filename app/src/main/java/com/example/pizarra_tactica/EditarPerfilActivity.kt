@@ -38,6 +38,11 @@ class EditarPerfilActivity : AppCompatActivity() {
     private lateinit var tvNote: TextView
     private lateinit var progress: ProgressBar
 
+    companion object {
+        const val EXTRA_FROM_REGISTER = "EXTRA_FROM_REGISTER"
+    }
+
+
     private lateinit var adapter: ArrayAdapter<String>
     private val countryItems = mutableListOf(
         "ES - España",
@@ -71,6 +76,8 @@ class EditarPerfilActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val fromRegister = intent.getBooleanExtra(EXTRA_FROM_REGISTER, false)
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -119,7 +126,16 @@ class EditarPerfilActivity : AppCompatActivity() {
             val selection = actCountry.text?.toString().orEmpty()
             val code = selection.take(2)
             Toast.makeText(this, "Guardado (pendiente BD): $code", Toast.LENGTH_SHORT).show()
-            finish()
+            if (fromRegister) {
+                startActivity(Intent(this, ElegirEquipo::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                })
+                finish()
+            } else {
+                // Venimos desde ElegirEquipo -> volvemos atrás
+                finish()
+            }
+
         }
     }
 
