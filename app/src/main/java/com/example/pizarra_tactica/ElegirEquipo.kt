@@ -42,6 +42,11 @@ class ElegirEquipo : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+
+        findViewById<ImageButton>(R.id.btn_profile).setOnClickListener {
+            startActivity(Intent(this, EditarPerfilActivity::class.java))
+        }
+
     }
 
     override fun onResume() {
