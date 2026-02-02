@@ -113,6 +113,7 @@ class MedioCampo : AppCompatActivity() {
         }
 
         actualizarListaJugadores(id)
+        actualizarColoresHerramientas(jugada) // Pincel activo por defecto
 
         // Set onClick listeners for buttons
         Menu.setOnClickListener {
@@ -428,36 +429,41 @@ class MedioCampo : AppCompatActivity() {
         val mainLayout = findViewById<ConstraintLayout>(R.id.main)
         val listaPosiciones = mutableListOf<String>()
 
-        // 1. Recorremos todos los elementos del campo
+        // 1. Recorremos los elementos del campo para capturar las posiciones
         for (i in 0 until mainLayout.childCount) {
             val vista = mainLayout.getChildAt(i)
 
-            // Identificamos si es un Layout de jugador (el que creamos en addPlayerToLayout)
+            // Filtramos solo los Layouts de los jugadores (sin ID y de tipo ConstraintLayout)
             if (vista is ConstraintLayout && vista.id == View.NO_ID) {
-                // Buscamos el TextView dentro del Layout para saber el dorsal
                 val tvDorsal = vista.getChildAt(1) as? TextView
                 val dorsal = tvDorsal?.text.toString()
 
-                // Guardamos: dorsal, x, y (usamos porcentajes para que sirva en cualquier móvil)
+                // Cálculo de posición relativa (0.0 a 1.0) para que sea responsive
                 val posX = vista.x / mainLayout.width
                 val posY = vista.y / mainLayout.height
                 listaPosiciones.add("$dorsal:$posX:$posY")
             }
         }
 
-        // 2. Convertimos la lista a un solo texto plano para la DB
         val datosSerializados = listaPosiciones.joinToString(";")
 
-        // 3. Enviamos a la nube
+        // 2. Envío a la nube con Corrutinas
         lifecycleScope.launch {
             try {
-                val estrategia = EstrategiaRemote(idEquipo, nombre, "medio", datosSerializados)
+                // Creamos el objeto con los 4 parámetros de tu data class
+                val estrategia = EstrategiaRemote(
+                    equipo_id = idEquipo,
+                    nombre = nombre,
+                    tipo_campo = "medio",
+                    datos_jugadores = datosSerializados
+                )
+
                 val response = RetrofitClient.instance.guardarEstrategia(estrategia)
                 if (response.isSuccessful) {
                     Toast.makeText(this@MedioCampo, "¡Pizarra '$nombre' guardada!", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@MedioCampo, "Error al conectar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MedioCampo, "Error al conectar con el servidor", Toast.LENGTH_SHORT).show()
             }
         }
     }
