@@ -5,15 +5,14 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MenuActivity"
-    android:background="@drawable/nuevofondo">
-
+    android:background="@drawable/nuevofondo"
+    tools:context=".MenuActivity">
 
     <TextView
-
         android:id="@+id/texto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         android:background="@color/cardview_shadow_start_color"
         android:backgroundTint="@color/cardview_shadow_start_color"
         android:fontFamily="casual"
@@ -24,24 +23,26 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.91" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/logo"
-        android:layout_width="600dp"
-        android:layout_height="600dp"
-        android:layout_marginStart="344dp"
-        android:layout_marginBottom="60dp"
-        android:adjustViewBounds="false"
-        android:background="@drawable/logorctactics"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="Logo"
+        android:scaleType="fitCenter"
+        android:src="@drawable/logorctactics"
+        app:layout_constraintBottom_toTopOf="@id/texto"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.558" />
-
+        app:layout_constraintWidth_percent="0.85"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintVertical_bias="0.45" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

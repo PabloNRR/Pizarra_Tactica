@@ -3,23 +3,20 @@ package com.example.pizarra_tactica
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.LinearLayout
-import android.view.ViewGroup
-import android.view.Gravity
-
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth // <--- IMPORTANTE
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.io.File
-import android.provider.MediaStore
-
 
 class Plantilla : AppCompatActivity() {
 
@@ -36,18 +33,35 @@ class Plantilla : AppCompatActivity() {
 
         val idRecibido = intent.getStringExtra("id") ?: return
 
+        // 1) Definimos el idEquipo SIEMPRE
         if (idRecibido == "NUEVO") {
             idEquipo = "EQ_" + System.currentTimeMillis()
             findViewById<EditText>(R.id.Text).setText("Nuevo Equipo")
+
+            // IMPORTANTE: pintamos interfaz aunque sea nuevo (lista vacía)
+            pintarJugadoresEnInterfaz(emptyList())
         } else {
             idEquipo = idRecibido
-            cargarDatosDesdeNube(idEquipo, findViewById(R.id.Text), findViewById(R.id.btnescudo))
+            cargarDatosDesdeNube(
+                idEquipo,
+                findViewById(R.id.Text),
+                findViewById(R.id.btnescudo)
+            )
         }
 
         val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
         val btnCampo: ImageButton = findViewById(R.id.btncampo)
         val btnHome: ImageButton = findViewById(R.id.btnhome)
         val btnEliminar: ImageButton = findViewById(R.id.btntrash)
+
+        // 2) Listener del "+" SIEMPRE aquí (no dentro de pintarJugadoresEnInterfaz)
+        findViewById<ImageButton>(R.id.btn_add_jugador).setOnClickListener {
+            val intent = Intent(this, Jugador::class.java).apply {
+                putExtra("id", idEquipo)
+                putExtra("ES_NUEVO", true)
+            }
+            startActivity(intent)
+        }
 
         btnHome.setOnClickListener {
             verificarYGuardar {
@@ -80,26 +94,28 @@ class Plantilla : AppCompatActivity() {
 
     // --- REFINADO DEL SELECTOR DE IMAGEN ---
 
-    private val launcherSelector = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val dataGaleria = result.data?.data
-            val uriFinal = if (dataGaleria != null) copiarImagenAGuardar(dataGaleria, idEquipo) else fotoUri
+    private val launcherSelector =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val dataGaleria = result.data?.data
+                val uriFinal =
+                    if (dataGaleria != null) copiarImagenAGuardar(dataGaleria, idEquipo) else fotoUri
 
-            uriFinal?.let { uri ->
-                val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
-                Glide.with(this)
-                    .load(uri)
-                    .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
-                    .into(btnEscudo)
+                uriFinal?.let { uri ->
+                    val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
+                    Glide.with(this)
+                        .load(uri)
+                        .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
+                        .into(btnEscudo)
 
-                btnEscudo.tag = uri.toString()
+                    btnEscudo.tag = uri.toString()
 
-                modificarEquipoEnNube {
-                    Toast.makeText(this, "Escudo actualizado", Toast.LENGTH_SHORT).show()
+                    modificarEquipoEnNube {
+                        Toast.makeText(this, "Escudo actualizado", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
-    }
 
     // --- LÓGICA DE PERSISTENCIA ACTUALIZADA ---
 
@@ -119,12 +135,17 @@ class Plantilla : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // PASO CLAVE: Filtrar por el usuario actual para validar duplicados
+                // Filtrar por el usuario actual para validar duplicados
                 val lista = RetrofitClient.instance.obtenerEquipos(currentUid)
-                val duplicado = lista.any { it.nombre.equals(nombre, ignoreCase = true) && it.id != idEquipo }
+                val duplicado =
+                    lista.any { it.nombre.equals(nombre, ignoreCase = true) && it.id != idEquipo }
 
                 if (duplicado) {
-                    Toast.makeText(this@Plantilla, "Ya existe un equipo con ese nombre", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@Plantilla,
+                        "Ya existe un equipo con ese nombre",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     modificarEquipoEnNube { onSuccess() }
                 }
@@ -141,7 +162,7 @@ class Plantilla : AppCompatActivity() {
     private fun cargarDatosDesdeNube(id: String, etNombre: EditText, btnEscudo: ImageButton) {
         lifecycleScope.launch {
             try {
-                // PASO CLAVE: Obtener solo los equipos del usuario logueado
+                // Obtener solo los equipos del usuario logueado
                 val lista = RetrofitClient.instance.obtenerEquipos(currentUid)
                 val equipo = lista.find { it.id == id }
 
@@ -166,23 +187,20 @@ class Plantilla : AppCompatActivity() {
 
     private fun pintarJugadoresEnInterfaz(jugadores: List<JugadorRemote>) {
         val contenedor = findViewById<LinearLayout>(R.id.contenedorJugadores)
-        contenedor.removeAllViews() // Limpiamos la lista anterior
+        contenedor.removeAllViews()
 
-        // 1. Dibujamos los jugadores que ya existen en la nube
         jugadores.forEach { j ->
             val tv = TextView(this).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     80 // Altura de cada fila
                 )
-                // Formato de texto: Dorsal | Nombre | Posición
                 text = String.format("       %2d      |  %-30s  %3s", j.dorsal, j.nombre, j.posicion)
                 setTextColor(android.graphics.Color.WHITE)
                 textSize = 30f
                 typeface = android.graphics.Typeface.MONOSPACE
 
                 setOnClickListener {
-                    // Al pulsar, vamos a editar este jugador
                     val intent = Intent(this@Plantilla, Jugador::class.java).apply {
                         putExtra("id", idEquipo)
                         putExtra("dorsal", j.dorsal.toString())
@@ -192,24 +210,12 @@ class Plantilla : AppCompatActivity() {
             }
             contenedor.addView(tv)
         }
-
-        // 2. Configuramos el botón de añadir (el que pusimos en el XML)
-        findViewById<ImageButton>(R.id.btn_add_jugador).setOnClickListener {
-            // Saltamos directamente a la pantalla de Jugador
-            val intent = Intent(this, Jugador::class.java).apply {
-                putExtra("id", idEquipo)
-                putExtra("ES_NUEVO", true) // Solo le decimos que es un jugador nuevo
-                // No pasamos dorsal, porque Jugador.kt decidirá cuál usar
-            }
-            startActivity(intent)
-        }
     }
 
     private fun modificarEquipoEnNube(onComplete: () -> Unit) {
         val nombre = findViewById<EditText>(R.id.Text).text.toString()
         val uri = findViewById<ImageButton>(R.id.btnescudo).tag?.toString() ?: ""
 
-        // PASO CLAVE: Incluir el currentUid en el objeto
         val equipoActualizado = EquipoRemote(idEquipo, nombre, uri, currentUid)
 
         lifecycleScope.launch {
@@ -225,7 +231,6 @@ class Plantilla : AppCompatActivity() {
     private fun eliminarEquipoEnNube(id: String) {
         lifecycleScope.launch {
             try {
-                // PASO CLAVE: Resetear enviando el UID para que el servidor sepa de quién es
                 val equipoReset = EquipoRemote(
                     id,
                     "Añadir Equipo",
@@ -242,11 +247,14 @@ class Plantilla : AppCompatActivity() {
         }
     }
 
-    // --- MÉTODOS DE IMAGEN (Se mantienen igual) ---
+    // --- MÉTODOS DE IMAGEN ---
+
     private fun abrirOpcionesImagen() {
         val intentGaleria = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
         fotoUri = crearUriTemporal()
-        val intentCamara = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply { putExtra(MediaStore.EXTRA_OUTPUT, fotoUri) }
+        val intentCamara = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+            putExtra(MediaStore.EXTRA_OUTPUT, fotoUri)
+        }
         val chooser = Intent.createChooser(intentGaleria, "Selecciona el escudo").apply {
             putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(intentCamara))
         }
@@ -255,15 +263,23 @@ class Plantilla : AppCompatActivity() {
 
     private fun crearUriTemporal(): Uri {
         val archivo = File(filesDir, "escudo_$idEquipo.jpg")
-        return androidx.core.content.FileProvider.getUriForFile(this, "${packageName}.fileprovider", archivo)
+        return androidx.core.content.FileProvider.getUriForFile(
+            this,
+            "${packageName}.fileprovider",
+            archivo
+        )
     }
 
     private fun copiarImagenAGuardar(uriOrigen: Uri, equipoId: String): Uri? {
         return try {
             contentResolver.openInputStream(uriOrigen)?.use { input ->
-                File(filesDir, "escudo_$equipoId.jpg").outputStream().use { output -> input.copyTo(output) }
+                File(filesDir, "escudo_$equipoId.jpg").outputStream().use { output ->
+                    input.copyTo(output)
+                }
             }
             crearUriTemporal()
-        } catch (e: Exception) { null }
+        } catch (e: Exception) {
+            null
+        }
     }
 }

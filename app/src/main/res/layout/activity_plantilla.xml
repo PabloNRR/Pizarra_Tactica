@@ -4,132 +4,128 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondoplantilla">
+    android:background="@drawable/fondoplantilla"
+    tools:context=".Plantilla">
 
+    <!-- Hasta dónde llega la barra superior del fondo -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHeaderBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="240dp" />
 
+    <!-- Separador para la columna derecha (botones) -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.78" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".Plantilla">
+    <ImageButton
+        android:id="@+id/btnescudo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/addescudo"
+        android:contentDescription="escudo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <EditText
+        android:id="@+id/Text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:backgroundTint="@color/cardview_shadow_start_color"
+        android:fontFamily="casual"
+        android:text="-----"
+        android:textColor="@color/white"
+        android:textSize="60sp"
+        app:layout_constraintStart_toEndOf="@id/btnescudo"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Botón + fijo (fuera del ScrollView) -->
+    <ImageButton
+        android:id="@+id/btn_add_jugador"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="20dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:scaleType="fitCenter"
+        android:src="@android:drawable/ic_input_add"
+        app:tint="@color/white"
+        app:layout_constraintStart_toStartOf="@id/skrillex"
+        app:layout_constraintEnd_toEndOf="@id/skrillex"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- LISTA: empieza debajo del header y TERMINA justo encima del botón + -->
+    <ScrollView
+        android:id="@+id/skrillex"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintTop_toBottomOf="@id/guidelineHeaderBottom"
+        app:layout_constraintBottom_toTopOf="@id/btn_add_jugador">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <LinearLayout
+                android:id="@+id/contenedorJugadores"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Columna derecha: también empieza debajo del header -->
+    <LinearLayout
+        android:id="@+id/actionColumn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintStart_toStartOf="@id/guidelineRight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guidelineHeaderBottom"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageButton
             android:id="@+id/btncampo"
             android:layout_width="150dp"
             android:layout_height="100dp"
-            android:layout_marginStart="75dp"
-            android:layout_marginEnd="60dp"
-            android:adjustViewBounds="false"
+            android:layout_marginTop="20dp"
             android:background="@drawable/campoboton"
-            android:contentDescription="campo"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.693"
-            app:layout_constraintStart_toEndOf="@+id/skrillex"
-            app:layout_constraintTop_toBottomOf="@id/Text"
-            app:layout_constraintVertical_bias="0.121" />
+            android:contentDescription="campo" />
 
         <ImageButton
             android:id="@+id/btnhome"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginEnd="50dp"
-            android:adjustViewBounds="false"
+            android:layout_marginTop="20dp"
             android:background="@drawable/home"
-            android:contentDescription="casa"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.715"
-            app:layout_constraintStart_toEndOf="@+id/skrillex"
-            app:layout_constraintTop_toBottomOf="@id/btncampo"
-            app:layout_constraintVertical_bias="0.163" />
+            android:contentDescription="casa" />
 
         <ImageButton
             android:id="@+id/btntrash"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginEnd="50dp"
-            android:adjustViewBounds="false"
-            android:background="@drawable/trash"
-            android:contentDescription="eliminar"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.715"
-            app:layout_constraintStart_toEndOf="@+id/skrillex"
-            app:layout_constraintTop_toBottomOf="@id/btncampo"
-            app:layout_constraintVertical_bias="0.816" />
-
-        <ImageButton
-            android:id="@+id/btnescudo"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_marginStart="30dp"
-            android:adjustViewBounds="false"
-            android:background="@drawable/addescudo"
-            android:contentDescription="escudo"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.037" />
-
-        <EditText
-            android:id="@+id/Text"
-            android:layout_width="1050dp"
-            android:layout_height="200dp"
             android:layout_marginTop="20dp"
-            android:layout_marginStart="0dp"
-            android:backgroundTint="@color/cardview_shadow_start_color"
-            android:fontFamily="casual"
-            android:text="-----"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textColor="@color/white"
-            android:textFontWeight="@integer/material_motion_duration_long_2"
-            android:textSize="60sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/btnescudo"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            android:background="@drawable/trash"
+            android:contentDescription="eliminar" />
 
-        <ScrollView
-            android:id="@+id/skrillex"
-            android:layout_width="1000dp"
-            android:layout_height="630dp"
-            app:layout_constraintTop_toBottomOf="@+id/Text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <LinearLayout
-                    android:id="@+id/contenedorJugadores"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-
-                <ImageButton
-                    android:id="@+id/btn_add_jugador"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="20dp"
-                    android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:src="@android:drawable/ic_input_add"
-                    app:tint="@color/white" />
-
-            </LinearLayout>
-        </ScrollView>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
