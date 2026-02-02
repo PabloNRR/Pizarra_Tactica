@@ -240,6 +240,26 @@ class MedioCampo : AppCompatActivity() {
         return (view is ImageView && view.id != R.id.mediocampo && view.id != R.id.banquillo && view.id != R.id.jugada && view.id != R.id.Menu && view.id != R.id.jugador && view.id != R.id.lineas && view.id != R.id.goma && view.id != R.id.editar && view.id != R.id.play && view.id != R.id.pausar && view.id != R.id.palante && view.id != R.id.patra && view.id != R.id.guardar && view.id != R.id.brush)
     }
 
+    private fun estaJugadorEnCampo(dorsal: String): Boolean {
+        // Si el dorsal está vacío (jugador genérico rojo), permitimos poner varios
+        if (dorsal.isEmpty()) return false
+
+        val mainLayout = findViewById<ConstraintLayout>(R.id.main)
+        for (i in 0 until mainLayout.childCount) {
+            val vista = mainLayout.getChildAt(i)
+
+            // Buscamos los layouts de jugadores (son ConstraintLayouts que hemos añadido)
+            if (vista is ConstraintLayout && vista.id == View.NO_ID) {
+                // El TextView del dorsal es el segundo hijo (índice 1) según tu addPlayerToLayout
+                val tvDorsal = vista.getChildAt(1) as? TextView
+                if (tvDorsal?.text.toString().trim() == dorsal.trim()) {
+                    return true // Encontrado, el jugador ya está en el campo
+                }
+            }
+        }
+        return false // No encontrado
+    }
+
     private fun setDraggable(view: View) {
         view.setOnTouchListener { v, event ->
             // SI LA GOMA ESTÁ ACTIVA: Borramos el jugador al tocarlo
@@ -270,6 +290,12 @@ class MedioCampo : AppCompatActivity() {
     }
 
     private fun addPlayerToLayout(esrojo: Boolean, dorsal: String) {
+
+        if (estaJugadorEnCampo(dorsal)) {
+            Toast.makeText(this, "El jugador $dorsal ya está en el campo", Toast.LENGTH_SHORT).show()
+            return // Cortamos la ejecución aquí
+        }
+
         //creamos un constraintlayout que contenga la bola y el dorsal
         val playerLayout = ConstraintLayout(this)
 
