@@ -8,7 +8,8 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.DELETE
 
-
+// suspend indica que usa corrutinas, es decir, mientras espera la respuesta del servidor
+// no se bloquea el hilo principal
 interface ApiService {
     @GET("equipos")
     suspend fun obtenerEquipos(@Query("user_id") userId: String): List<EquipoRemote>
