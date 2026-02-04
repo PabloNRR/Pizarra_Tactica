@@ -184,31 +184,84 @@ class Plantilla : AppCompatActivity() {
             }
         }
     }
-
     private fun pintarJugadoresEnInterfaz(jugadores: List<JugadorRemote>) {
         val contenedor = findViewById<LinearLayout>(R.id.contenedorJugadores)
         contenedor.removeAllViews()
 
         jugadores.forEach { j ->
-            val tv = TextView(this).apply {
+            val abrirJugador = {
+                val intent = Intent(this@Plantilla, Jugador::class.java).apply {
+                    putExtra("id", idEquipo)
+                    putExtra("dorsal", j.dorsal.toString())
+                }
+                startActivity(intent)
+            }
+
+            val fila = LinearLayout(this).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    80 // Altura de cada fila
+                    110
                 )
-                text = String.format("       %2d      |  %-30s  %3s", j.dorsal, j.nombre, j.posicion)
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+
+                // Esto hace que toda la fila, incluidos espacios vacíos, sea pulsable
+                isClickable = true
+                isFocusable = true
+
+                val outValue = android.util.TypedValue()
+                theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+                setBackgroundResource(outValue.resourceId)
+
+                setOnClickListener { abrirJugador() }
+            }
+
+            val tvDorsal = TextView(this).apply {
+                text = String.format("      %2d  |  ", j.dorsal)
                 setTextColor(android.graphics.Color.WHITE)
                 textSize = 30f
                 typeface = android.graphics.Typeface.MONOSPACE
-
-                setOnClickListener {
-                    val intent = Intent(this@Plantilla, Jugador::class.java).apply {
-                        putExtra("id", idEquipo)
-                        putExtra("dorsal", j.dorsal.toString())
-                    }
-                    startActivity(intent)
-                }
+                isClickable = false
             }
-            contenedor.addView(tv)
+
+            val scrollNombre = android.widget.HorizontalScrollView(this).apply {
+                // Mantenemos tus 900 de ancho
+                layoutParams = LinearLayout.LayoutParams(900, ViewGroup.LayoutParams.WRAP_CONTENT)
+                isHorizontalScrollBarEnabled = false
+                isClickable = false
+                isFocusable = false
+            }
+
+            val tvNombre = TextView(this).apply {
+                text = j.nombre
+                setTextColor(android.graphics.Color.WHITE)
+                textSize = 30f
+                typeface = android.graphics.Typeface.MONOSPACE
+                setSingleLine(true)
+
+                // --- SOLUCIÓN AL ESPACIO VACÍO ---
+                // Forzamos a que el TextView del nombre mida al menos los 900 del scroll
+                // Así, aunque el nombre sea corto, el área de clic llena todo el hueco
+                minWidth = 900
+
+                setOnClickListener { abrirJugador() }
+            }
+
+            scrollNombre.addView(tvNombre)
+
+            val tvPosicion = TextView(this).apply {
+                text = String.format("  %3s", j.posicion)
+                setTextColor(android.graphics.Color.WHITE)
+                textSize = 30f
+                typeface = android.graphics.Typeface.MONOSPACE
+                isClickable = false
+            }
+
+            fila.addView(tvDorsal)
+            fila.addView(scrollNombre)
+            fila.addView(tvPosicion)
+
+            contenedor.addView(fila)
         }
     }
 
