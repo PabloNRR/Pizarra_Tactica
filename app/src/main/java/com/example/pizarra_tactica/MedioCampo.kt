@@ -113,7 +113,7 @@ class MedioCampo : AppCompatActivity() {
         }
 
         actualizarListaJugadores(id)
-        actualizarColoresHerramientas(jugada) // Pincel activo por defecto
+        actualizarColoresHerramientas(jugada) // Jugada activo por defecto
 
         // Set onClick listeners for buttons
         Menu.setOnClickListener {
@@ -177,6 +177,16 @@ class MedioCampo : AppCompatActivity() {
                 reconstruirPizarra(datosGuardados)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        shakeToUndo.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        shakeToUndo.stop()
     }
 
     private fun reconstruirPizarra(datos: String) {
@@ -502,16 +512,6 @@ class MedioCampo : AppCompatActivity() {
                 android.widget.Toast.makeText(this@MedioCampo, "Error al cargar banquillo", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        shakeToUndo.start()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        shakeToUndo.stop()
     }
 
 }

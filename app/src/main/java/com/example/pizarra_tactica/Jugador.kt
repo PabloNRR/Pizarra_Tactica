@@ -162,7 +162,7 @@ class Jugador : AppCompatActivity() {
                         if (response.isSuccessful) {
                             Toast.makeText(this@Jugador, "Jugador eliminado con éxito", Toast.LENGTH_SHORT).show()
 
-                            // 3. RETORNO A LA PLANTILLA (Aquí está el detalle que pedías)
+                            // 3. RETORNO A LA PLANTILLA
                             volverAPlantilla()
                         } else {
                             Toast.makeText(this@Jugador, "Error: El servidor no pudo borrarlo", Toast.LENGTH_SHORT).show()

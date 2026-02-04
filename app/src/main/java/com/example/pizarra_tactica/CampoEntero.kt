@@ -84,7 +84,7 @@ class CampoEntero : AppCompatActivity() {
         }
 
         actualizarListaJugadores(id)
-        actualizarColoresHerramientas(jugada) // Pincel activo por defecto
+        actualizarColoresHerramientas(jugada) // Jugada activo por defecto
 
         // Listeners de herramientas
         Menu.setOnClickListener { mostraropciones(id) }
@@ -314,8 +314,6 @@ class CampoEntero : AppCompatActivity() {
             } catch (e: Exception) { /* Error handling */ }
         }
     }
-
-    private fun isMovableView(view: View): Boolean = view is ImageView && view.id != R.id.campo && view.id != R.id.banquillo && view.id != R.id.jugada && view.id != R.id.Menu && view.id != R.id.jugador && view.id != R.id.lineas && view.id != R.id.goma && view.id != R.id.brush
 
     override fun onResume() { super.onResume(); shakeToUndo.start() }
     override fun onPause() { super.onPause(); shakeToUndo.stop() }

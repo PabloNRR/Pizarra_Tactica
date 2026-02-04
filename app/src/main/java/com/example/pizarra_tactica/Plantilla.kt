@@ -27,6 +27,32 @@ class Plantilla : AppCompatActivity() {
     private val currentUid: String
         get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
+
+    // --- REFINADO DEL SELECTOR DE IMAGEN ---
+
+    private val launcherSelector =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val dataGaleria = result.data?.data
+                val uriFinal =
+                    if (dataGaleria != null) copiarImagenAGuardar(dataGaleria, idEquipo) else fotoUri
+
+                uriFinal?.let { uri ->
+                    val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
+                    Glide.with(this)
+                        .load(uri)
+                        .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
+                        .into(btnEscudo)
+
+                    btnEscudo.tag = uri.toString()
+
+                    modificarEquipoEnNube {
+                        Toast.makeText(this, "Escudo actualizado", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_plantilla)
@@ -92,30 +118,11 @@ class Plantilla : AppCompatActivity() {
         }
     }
 
-    // --- REFINADO DEL SELECTOR DE IMAGEN ---
 
-    private val launcherSelector =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val dataGaleria = result.data?.data
-                val uriFinal =
-                    if (dataGaleria != null) copiarImagenAGuardar(dataGaleria, idEquipo) else fotoUri
+    override fun onBackPressed() {
+        verificarYGuardar { super.onBackPressed() }
+    }
 
-                uriFinal?.let { uri ->
-                    val btnEscudo: ImageButton = findViewById(R.id.btnescudo)
-                    Glide.with(this)
-                        .load(uri)
-                        .signature(com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis().toString()))
-                        .into(btnEscudo)
-
-                    btnEscudo.tag = uri.toString()
-
-                    modificarEquipoEnNube {
-                        Toast.makeText(this, "Escudo actualizado", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
 
     // --- LÓGICA DE PERSISTENCIA ACTUALIZADA ---
 
@@ -153,10 +160,6 @@ class Plantilla : AppCompatActivity() {
                 onSuccess()
             }
         }
-    }
-
-    override fun onBackPressed() {
-        verificarYGuardar { super.onBackPressed() }
     }
 
     private fun cargarDatosDesdeNube(id: String, etNombre: EditText, btnEscudo: ImageButton) {
